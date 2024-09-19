@@ -137,6 +137,18 @@ captcha:
   register-not-allowed:
     - "{PREFIX}: &cYou are not allowed to register without doing CAPTCHA!"
 
+# Title and Subtitle during Login and Register phase
+title:
+  enabled: true
+  login-title-text: "&ePlease Login &f{PLAYER}&e!" # Placeholders {PREFIX} and {PLAYER} available
+  login-subtitle-text: "&7Use &7/&elogin &7<&epassword&7>"
+  register-title-text: "&ePlease Register &f{PLAYER}&e!"
+  register-subtitle-text: "&7Use &7/&eregister &7<&epassword&7> &7<&epassword&7>"
+  fade-in: 10
+  fade-out: 10
+  stay: 10
+  repeat-delay: 20
+
 # Messages configuration
 messages:
   prefix: '&6&l★&r&eLightLogin&6&l★&r&f' # Prefix for plugin messages

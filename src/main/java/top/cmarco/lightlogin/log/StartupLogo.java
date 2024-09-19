@@ -66,38 +66,6 @@ public class StartupLogo {
             "&7[ &a&l✔&r &7] &aCorrectly set up CAPTCHA features!",
     };
 
-    private static final String[] STRINGS_CHINESE = {
-            "&e© CMarco 2024",
-            "&7[ &a&l. . .&r &7] &e正在设置 JVM 安全因素",
-            "&7[ &a&l✔&r &7] &a成功设置 JVM 安全因素!",
-            "&7[ &a&l. . .&r &7] &e正在设置虚空世界功能",
-            "&7[ &a&l✔&r &7] &a成功设置虚空世界功能!",
-            "&7[ &a&l. . .&r &7] &e正在设置身份验证日志",
-            "&7[ &a&l✔&r &7] &a成功设置身份验证日志!",
-            "login_world",
-            "警告！加载自定义配置时出错",
-            "&7[ &a&l. . .&r &7] &e正在设置安全日志过滤器",
-            "&7[ &a&l✔&r &7] &a成功设置安全日志过滤器!",
-            "&7[ &a&l. . .&r &7] &e正在设置身份验证管理器",
-            "&7[ &a&l✔&r &7] &a成功设置身份验证管理器!",
-            "&7[ &a&l. . .&r &7] &e正在设置踢出管理器",
-            "&7[ &a&l✔&r &7] &a成功设置踢出管理器!",
-            "&7[ &a&l. . .&r &7] &e正在设置自定义监听器",
-            "&7[ &a&l✔&r &7] &a成功设置自定义监听器!",
-            "&7[ &a&l. . .&r &7] &e正在设置配置文件",
-            "language",
-            "警告！选择了无效的配置语言",
-            "将在问题解决之前使用 config_english.yml!",
-            "&7[ &a&l✔&r &7] &a加载带有语言的配置",
-            "&7[ &a&l. . .&r &7] &e正在设置身份验证数据库",
-            "警告！配置文件中的数据库类型无效。无法加载插件。",
-            "正在关闭服务器 . . .",
-            "&7[ &a&l✔&r &7] &a成功设置身份验证数据库 &7(&a",
-            "&7)&e!",
-            "&7[ &a&l. . .&r &7] &e正在设置 CAPTCHA",
-            "&7[ &a&l✔&r &7] &a成功设置 CAPTCHA 功能!",
-    };
-
     private static final String[] STRINGS_FILIPINO = {
             "&e© CMarco 2024",
             "&7[ &a&l. . .&r &7] &eInaayos ang mga salik ng seguridad ng JVM",
@@ -295,7 +263,6 @@ public class StartupLogo {
         return switch (configFile) {
             case ENGLISH -> STRINGS_ENG[number];
             case SPANISH -> STRINGS_SPANISH[number];
-            case CHINESE -> STRINGS_CHINESE[number];
             case FRENCH -> STRINGS_FRENCH[number];
             case HEBREW -> STRINGS_HEBREW[number];
             case ITALIAN -> STRINGS_ITALIAN[number];

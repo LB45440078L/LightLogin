@@ -2,7 +2,7 @@
 # LightLoginPlugin
 #--------------------
 
-language: 'ENGLISH' # "ENGLISH", "CHINESE", "RUSSIAN", "FRENCH", "HEBREW", "ITALIAN", "SPANISH", "FILIPINO"
+language: 'ENGLISH' # "ENGLISH", "RUSSIAN", "FRENCH", "HEBREW", "ITALIAN", "SPANISH", "FILIPINO"
                     # 更改以设置您的语言
                     # Измените, чтобы установить ваш язык
                     # שנה כדי להגדיר את השפה של

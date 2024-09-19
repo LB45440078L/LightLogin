@@ -135,6 +135,18 @@ temp-password:
   secret-key: "L&UJ6tT%"  # Пожалуйста, измените это!
   password-timeout: 180   # Сколько секунд пройдет, прежде чем этот временный пароль истечет.
 
+# Заголовок и подзаголовок во время этапа входа и регистрации
+title:
+  enabled: true
+  login-title-text: "&eПожалуйста, войдите &f{PLAYER}&e!" # Доступны плейсхолдеры {PREFIX} и {PLAYER}
+  login-subtitle-text: "&7Используйте &7/&elogin &7<&epassword&7>"
+  register-title-text: "&eПожалуйста, зарегистрируйтесь &f{PLAYER}&e!"
+  register-subtitle-text: "&7Используйте &7/&eregister &7<&epassword&7> &7<&epassword&7>"
+  fade-in: 0
+  fade-out: 0
+  stay: 20
+  repeat-delay: 20
+
 # Конфигурация сообщений
 messages:
   prefix: '&7╓&eLightLogin&7╛&f' # Префикс для сообщений плагина

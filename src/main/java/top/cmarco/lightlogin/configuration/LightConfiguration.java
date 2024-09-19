@@ -531,4 +531,45 @@ public final class LightConfiguration {
     public boolean isLoginTeleportEnabled() {
         return this.configuration.getBoolean("teleport.enabled");
     }
+
+    public boolean isTitleEnabled() {
+        return this.configuration.getBoolean("title.enabled");
+    }
+
+    @Nullable
+    public String getTitleText() {
+        return this.configuration.getString("title.login-title-text");
+    }
+
+    @Nullable
+    public String getSubtitleText() {
+        return this.configuration.getString("title.login-subtitle-text");
+    }
+
+    @Nullable
+    public String getRegisterTitleText() {
+        return this.configuration.getString("title.register-title-text");
+    }
+
+    @Nullable
+    public String getRegisterSubtitleText() {
+        return this.configuration.getString("title.register-subtitle-text");
+    }
+
+
+    public int getTitleFadeIn() {
+        return this.configuration.getInt("title.fade-in");
+    }
+
+    public int getTitleFadeOut() {
+        return this.configuration.getInt("title.fade-out");
+    }
+
+    public int getTitleStay() {
+        return this.configuration.getInt("title.stay");
+    }
+
+    public int getTitleRepeatDelay() {
+        return this.configuration.getInt("title.repeat-delay");
+    }
 }

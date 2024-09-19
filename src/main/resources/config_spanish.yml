@@ -136,6 +136,18 @@ temp-password:
   secret-key: "L&UJ6tT%"  # ¡Por favor cambie esto!
   password-timeout: 180   # Después de cuántos segundos expira esta contraseña temporal.
 
+# Título y subtítulo durante la fase de inicio de sesión y registro
+title:
+  enabled: true
+  login-title-text: "&ePor favor inicia sesión &f{PLAYER}&e!" # Placeholders {PREFIX} y {PLAYER} disponibles
+  login-subtitle-text: "&7Usa &7/&elogin &7<&epassword&7>"
+  register-title-text: "&ePor favor regístrate &f{PLAYER}&e!"
+  register-subtitle-text: "&7Usa &7/&eregister &7<&epassword&7> &7<&epassword&7>"
+  fade-in: 0
+  fade-out: 0
+  stay: 20
+  repeat-delay: 20
+
 # Configuración de mensajes
 messages:
   prefix: '&7╓&eLightLogin&7╛&f' # Prefijo para los mensajes del complemento

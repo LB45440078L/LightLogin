@@ -156,4 +156,12 @@ public class BasicAuthenticationManager implements AuthenticationManager {
     public void unauthenticate(@NotNull UUID playerUuid) {
         this.authenticatedSet.remove(playerUuid);
     }
+
+    public boolean isUnloginned(@NotNull UUID uuid) {
+        return this.unloginnedSet.contains(uuid);
+    }
+
+    public boolean isUnregistered(@NotNull UUID uuid) {
+        return this.unregisteredSet.contains(uuid);
+    }
 }

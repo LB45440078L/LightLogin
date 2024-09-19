@@ -137,6 +137,18 @@ temp-password:
   secret-key: "L&UJ6tT%"  # אנא שנה זאת!
   password-timeout: 180   # לאחר כמה שניות ססמה זמנית זו תפוג.
 
+# כותרת וכותרת משנה במהלך שלב הכניסה והרישום
+title:
+  enabled: true
+  login-title-text: "&eאנא התחבר &f{PLAYER}&e!" # ניתן להשתמש בתווים חלופיים {PREFIX} ו-{PLAYER}
+  login-subtitle-text: "&7השתמש ב- &7/&elogin &7<&epassword&7>"
+  register-title-text: "&eאנא הירשם &f{PLAYER}&e!"
+  register-subtitle-text: "&7השתמש ב- &7/&eregister &7<&epassword&7> &7<&epassword&7>"
+  fade-in: 0
+  fade-out: 0
+  stay: 20
+  repeat-delay: 20
+
 # הגדרות הודעות
 messages:
   prefix: '&7╓&eLightLogin&7╛&f' # תחילית להודעות התוסף

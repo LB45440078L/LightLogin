@@ -138,6 +138,18 @@ temp-password:
   secret-key: "L&UJ6tT%"  # Pakibago ito!
   password-timeout: 180   # Pagkatapos ng ilang segundo, itong pansamantalang password ay mag-eexpire.
 
+# Pamagat at Subtitle sa panahon ng Pag-login at Pagrehistro
+title:
+  enabled: true
+  login-title-text: "&ePaki-login &f{PLAYER}&e!" # Magagamit ang mga Placeholder {PREFIX} at {PLAYER}
+  login-subtitle-text: "&7Gamitin ang &7/&elogin &7<&epassword&7>"
+  register-title-text: "&ePaki-rehistro &f{PLAYER}&e!"
+  register-subtitle-text: "&7Gamitin ang &7/&eregister &7<&epassword&7> &7<&epassword&7>"
+  fade-in: 0
+  fade-out: 0
+  stay: 20
+  repeat-delay: 20
+
 # Konfigurasyon ng Mensahe
 messages:
   prefix: "&7╓&eLightLogin&7╛&f" # Prefix para sa mga mensaheng ng plugin

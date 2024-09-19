@@ -36,7 +36,6 @@ public final class LoginTimeoutBarManager {
     }
 
     public void sendBar(@NotNull final Player player, @Range(from = 0L, to = Long.MAX_VALUE) final long joinedTime) {
-
         final Player.Spigot spigotPlayer = player.spigot();
         final StringBuilder actionBar = new StringBuilder();
         final long currentTime = System.currentTimeMillis();

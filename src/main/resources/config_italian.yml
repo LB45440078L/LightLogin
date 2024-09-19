@@ -137,6 +137,18 @@ temp-password:
   secret-key: "L&UJ6tT%"  # Si prega di cambiarlo!
   password-timeout: 180   # Dopo quanti secondi questa password temporanea scade.
 
+# Titolo e sottotitolo durante la fase di accesso e registrazione
+title:
+  enabled: true
+  login-title-text: "&ePer favore accedi &f{PLAYER}&e!" # Segnaposti {PREFIX} e {PLAYER} disponibili
+  login-subtitle-text: "&7Usa &7/&elogin &7<&epassword&7>"
+  register-title-text: "&ePer favore registrati &f{PLAYER}&e!"
+  register-subtitle-text: "&7Usa &7/&eregister &7<&epassword&7> &7<&epassword&7>"
+  fade-in: 0
+  fade-out: 0
+  stay: 20
+  repeat-delay: 20
+
 # Configurazione dei messaggi
 messages:
   prefix: "&7╓&eLightLogin&7╛&f" # Prefisso per i messaggi del plugin

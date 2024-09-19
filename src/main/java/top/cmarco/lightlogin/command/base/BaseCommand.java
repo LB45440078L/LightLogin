@@ -56,31 +56,6 @@ public final class BaseCommand extends LightLoginCommand {
         sender.sendMessage(englishMessages);
     }
 
-    public static void sendCommandHelpChinese(@NotNull final CommandSender sender) {
-        final String s1 = colorMessage("&6&l★&r&eLightLogin&6&l★&r&f 帮助页面:");
-        final String s2 = colorMessage("&7设置您的帐户电子邮件。");
-        final String s3 = colorMessage("  ● &7/&eemail &7<&6电子邮件&7>");
-        final String s4 = colorMessage("&7请求更改当前密码。");
-        final String s5 = colorMessage("  ● &7/&echangepassword &7<&6旧密码&7> &7<&6新密码&7>");
-        final String s6 = colorMessage("&7通过电子邮件重置密码。");
-        final String s7 = colorMessage("  ● &7/&eresetpassword");
-        final String s8 = colorMessage("&7使在线玩家未验证。");
-        final String s9 = colorMessage("  ● &7/&eunlogin &7<&6用户名&7>");
-        final String s10 = colorMessage("&7注销玩家");
-        final String s11 = colorMessage("  ● &7/&eunregister &7<&6用户名&7>");
-        final String s12 = colorMessage("&7登录到服务器。");
-        final String s13 = colorMessage("  ● &7/&elogin &7<&6密码&7>");
-        final String s14 = colorMessage("&7在此服务器上注册。");
-        final String s15 = colorMessage("  ● &7/&eregister &7<&6密码&7> &7<&6确认密码&7>");
-        final String s16 = colorMessage("&7通过控制台分配临时密码。");
-        final String s17 = colorMessage("  ● &7/&etemppassword &7<&6用户名&7> &7<&6密码&7> &7<&6安全密钥&7>");
-        final String s18 = colorMessage("&7读取用户登录数据。");
-        final String s19 = colorMessage("  ● &7/&elogin-data &7<&6用户名&7>");
-
-        final String[] chineseMessages = {s1, s2, s3, s4, s5, s6, s7, s8, s9, s10, s11, s12, s13, s14, s15, s16, s17, s18, s19};
-        sender.sendMessage(chineseMessages);
-    }
-
     public static void sendCommandHelpFilipino(@NotNull final CommandSender sender) {
         final String s1 = colorMessage("&6&l★&r&eLightLogin&6&l★&r&f Pahina ng Tulong:");
         final String s2 = colorMessage("&7Itakda ang email ng iyong account.");
@@ -235,7 +210,6 @@ public final class BaseCommand extends LightLoginCommand {
         switch (plugin.getLightConfiguration().getChosenLanguage()) {
             case ENGLISH -> sendCommandHelpEng(sender);
             case SPANISH -> sendCommandHelpSpanish(sender);
-            case CHINESE -> sendCommandHelpChinese(sender);
             case FRENCH -> sendCommandHelpFrench(sender);
             case HEBREW -> sendCommandHelpHebrew(sender);
             case ITALIAN -> sendCommandHelpItalian(sender);
