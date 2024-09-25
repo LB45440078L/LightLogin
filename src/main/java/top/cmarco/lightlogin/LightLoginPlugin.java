@@ -247,9 +247,9 @@ public final class LightLoginPlugin extends JavaPlugin {
 
     private void setupConfig() {
         saveDefaultConfig();
-        saveAllConfigs();
         ConfigurationFiles chosenLanguage = ConfigUtils.chosenLanguage(this);
         lightConfiguration = new LightConfiguration(chosenLanguage, this);
+        saveAllConfigs();
         lightConfiguration.loadConfig();
         this.sendConsoleColoured(StartupLogo.getLoadingString(17, lightConfiguration.getChosenLanguage()));
         this.sendConsoleColoured(StartupLogo.getLoadingString(21, lightConfiguration.getChosenLanguage()) + ' ' + chosenLanguage.name() + "!");

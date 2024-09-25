@@ -258,6 +258,39 @@ public class StartupLogo {
             "&7[ &a&l✔&r &7] &a¡Funciones de CAPTCHA configuradas correctamente!",
     };
 
+    private static final String[] STRINGS_PORTUGUESE = {
+            "&e© CMarco 2024",
+            "&7[ &a&l. . .&r &7] &eConfigurando fatores de segurança da JVM",
+            "&7[ &a&l✔&r &7] &aFatores de segurança da JVM configurados corretamente!",
+            "&7[ &a&l. . .&r &7] &eConfigurando recurso do mundo vazio",
+            "&7[ &a&l✔&r &7] &aRecurso do mundo vazio configurado corretamente!",
+            "&7[ &a&l. . .&r &7] &eConfigurando log de autenticação",
+            "&7[ &a&l✔&r &7] &aLog de autenticação configurado corretamente!",
+            "login_world",
+            "ATENÇÃO! Erro ao carregar a configuração personalizada",
+            "&7[ &a&l. . .&r &7] &eConfigurando filtro de logs seguro",
+            "&7[ &a&l✔&r &7] &aFiltro de logs seguro configurado corretamente!",
+            "&7[ &a&l. . .&r &7] &eConfigurando gerenciador de autenticação.",
+            "&7[ &a&l✔&r &7] &aGerenciador de autenticação configurado corretamente!",
+            "&7[ &a&l. . .&r &7] &eConfigurando gerenciador de expulsões.",
+            "&7[ &a&l✔&r &7] &aGerenciador de expulsões configurado corretamente!",
+            "&7[ &a&l. . .&r &7] &eConfigurando ouvintes personalizados.",
+            "&7[ &a&l✔&r &7] &aOuvintes personalizados configurados corretamente!",
+            "&7[ &a&l. . .&r &7] &eConfigurando configurações.",
+            "language",
+            "ATENÇÃO! Idioma de configuração inválido escolhido como ",
+            "Usará config_english.yml até que o problema seja resolvido!",
+            "&7[ &a&l✔&r &7] &aConfiguração carregada com idioma",
+            "&7[ &a&l. . .&r &7] &eConfigurando Banco de Dados de Autenticação.",
+            "ATENÇÃO! Tipo de banco de dados inválido no arquivo de configuração. Não é possível carregar o plugin.",
+            "Desligando o servidor . . .",
+            "&7[ &a&l✔&r &7] &aBanco de Dados de Autenticação configurado corretamente &7(&a",
+            "&7)&e!",
+            "&7[ &a&l. . .&r &7] &eConfigurando CAPTCHA",
+            "&7[ &a&l✔&r &7] &aRecursos de CAPTCHA configurados corretamente!",
+    };
+
+
 
     public static String getLoadingString(int number, ConfigurationFiles configFile) {
         return switch (configFile) {
@@ -268,6 +301,7 @@ public class StartupLogo {
             case ITALIAN -> STRINGS_ITALIAN[number];
             case RUSSIAN -> STRINGS_RUSSIAN[number];
             case FILIPINO -> STRINGS_FILIPINO[number];
+            case PORTUGUESE -> STRINGS_PORTUGUESE[number];
             default -> null;
         };
     }

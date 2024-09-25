@@ -206,6 +206,32 @@ public final class BaseCommand extends LightLoginCommand {
         sender.sendMessage(spanishMessages);
     }
 
+    public static void sendCommandHelpPor(@NotNull final CommandSender sender) {
+        final String s1 = colorMessage("&6&l★&r&eLightLogin&6&l★&r&f Página de Ajuda:");
+        final String s2 = colorMessage("&7Defina o e-mail da sua conta.");
+        final String s3 = colorMessage("  ● &7/&eemail &7<&6email&7>");
+        final String s4 = colorMessage("&7Solicite a alteração da sua senha atual.");
+        final String s5 = colorMessage("  ● &7/&echangepassword &7<&6senhaAntiga&7> &7<&6novaSenha&7>");
+        final String s6 = colorMessage("&7Redefina sua senha via e-mail.");
+        final String s7 = colorMessage("  ● &7/&eresetpassword");
+        final String s8 = colorMessage("&7Desautentique um jogador online.");
+        final String s9 = colorMessage("  ● &7/&eunlogin &7<&6nomeDeUsuario&7>");
+        final String s10 = colorMessage("&7Desregistre um jogador");
+        final String s11 = colorMessage("  ● &7/&eunregister &7<&6nomeDeUsuario&7>");
+        final String s12 = colorMessage("&7Autentique-se no servidor.");
+        final String s13 = colorMessage("  ● &7/&elogin &7<&6senha&7>");
+        final String s14 = colorMessage("&7Registre-se neste servidor.");
+        final String s15 = colorMessage("  ● &7/&eregister &7<&6senha&7> &7<&6confirmarSenha&7>");
+        final String s16 = colorMessage("&7Atribua uma senha temporária através do console.");
+        final String s17 = colorMessage("  ● &7/&etemppassword &7<&6nomeDeUsuario&7> &7<&6senha&7> &7<&6chave-de-seguranca&7>");
+        final String s18 = colorMessage("&7Leia os dados de login do usuário.");
+        final String s19 = colorMessage("  ● &7/&elogin-data &7<&6nomeDeUsuario&7>");
+
+        final String[] portugueseMessages = {s1,s2,s3,s4,s5,s6,s7,s8,s9,s10,s11,s12,s13,s14,s15,s16,s17, s18,s19};
+        sender.sendMessage(portugueseMessages);
+    }
+
+
     public void sendCommandHelps(CommandSender sender) {
         switch (plugin.getLightConfiguration().getChosenLanguage()) {
             case ENGLISH -> sendCommandHelpEng(sender);
@@ -215,6 +241,7 @@ public final class BaseCommand extends LightLoginCommand {
             case ITALIAN -> sendCommandHelpItalian(sender);
             case RUSSIAN -> sendCommandHelpRussian(sender);
             case FILIPINO -> sendCommandHelpFilipino(sender);
+            case PORTUGUESE -> sendCommandHelpPor(sender);
             default -> {}
         }
     }

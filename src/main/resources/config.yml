@@ -1,8 +1,8 @@
-# version 1.0.0
+# version 1.1.0
 # LightLoginPlugin
 #--------------------
 
-language: 'ENGLISH' # "ENGLISH", "RUSSIAN", "FRENCH", "HEBREW", "ITALIAN", "SPANISH", "FILIPINO"
+language: 'ENGLISH' # "ENGLISH", "RUSSIAN", "FRENCH", "HEBREW", "ITALIAN", "SPANISH", "FILIPINO", "PORTUGUESE"
                     # 更改以设置您的语言
                     # Измените, чтобы установить ваш язык
                     # שנה כדי להגדיר את השפה של

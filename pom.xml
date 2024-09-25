@@ -6,7 +6,7 @@
 
     <groupId>top.cmarco</groupId>
     <artifactId>LightLogin</artifactId>
-    <version>1.3.2.2</version>
+    <version>1.3.2.3</version>
     <packaging>jar</packaging>
 
     <name>LightLogin</name>

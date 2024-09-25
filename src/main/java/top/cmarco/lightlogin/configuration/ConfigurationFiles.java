@@ -26,7 +26,8 @@ public enum ConfigurationFiles {
     HEBREW("config_hebrew.yml"),
     ITALIAN("config_italian.yml"),
     RUSSIAN("config_russian.yml"),
-    FILIPINO("config_filipino.yml");
+    FILIPINO("config_filipino.yml"),
+    PORTUGUESE("config_portuguese.yml");
 
     private final String filename;
 

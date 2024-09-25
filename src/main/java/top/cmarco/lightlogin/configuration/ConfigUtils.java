@@ -73,6 +73,7 @@ public final class ConfigUtils {
 
             return customConfig;
         } catch (IOException | InvalidConfigurationException exception) {
+        //    plugin.getLogger().warning(StartupLogo.getLoadingString(8, plugin.getLightConfiguration().getChosenLanguage()) + configurationFile.getFilename());
             plugin.getLogger().warning(StartupLogo.getLoadingString(8, plugin.getLightConfiguration().getChosenLanguage()) + configurationFile.getFilename());
             plugin.getLogger().warning(exception.getLocalizedMessage());
         }

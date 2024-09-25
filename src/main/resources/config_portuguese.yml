@@ -1,0 +1,293 @@
+# LightLogin complemento arquivo de configuração.
+# Este arquivo é usado para personalizar completamente aspectos importantes deste software.
+# versão 1.0.0 (não modifique)
+# Editar com cautela!
+plugin:
+  info:
+    - "{PREFIX}: &6Complementar informações"
+    - "&eEste complemento está atualmente na versão {VERSION}"
+    - "&eO desenvolvedor deste software é CMARCO"
+    - "&7Este complemento foi criado em janeiro de 2024 para proteger seu servidor e fazê -lo
+    acessível a todos com segurança."
+
+# Configurações do banco de dados
+database:
+  type: "SQLITE" #Tipos  (alternativas:Sqlite,Mysql,Postgresql)
+  username: "root" # Nome de usuário da sua conta de banco de dados
+  password: "password" # Senha da sua conta de banco de dados
+  address: "127.0.0.1" # Endereço de conexão
+  port: 3306 # Porta de conexão
+  db-name: "local" # Nome do banco de dados para conectar e salvar dados.
+
+# Comportamento do servidor após quedas ou problemas de banco de dados
+crash-shutdown: false # Desligue o servidor após quedas graves ou problemas de banco de dados.
+
+void-world:
+  enabled: false
+  mode: NORMAL # NORMAL \ THE_END
+
+login-blindness: # Habilite a cegueira durante o login ou registro.
+  enabled: true
+
+# Configuração de login
+login:
+  command-delay: 3 # Atraso em segundos antes do comando de login ser executado
+  kick-after-seconds: 120
+  max-failed-attempts: 10 # Número máximo de tentativas de login preenchidas antes de serem punidas
+  bruteforce-punishment: # Comandos de punição para tentativas de força bruta
+    - clear {PLAYER}
+    - tempban {PLAYER} 1h &cVocê falhou no login muitas vezes.
+  auto-login: true # Faça login automaticamente após o registro
+  session-expire: 900 # Tempo em segundos, após o qual uma sessão de login deve expirar (padrão de 15 minutos)
+  allowed-commands: # Lista de comandos que os jogadores podem executar antes do registro
+    - /help
+    - /login
+    - /verify
+    - /register
+
+captcha:
+  enabled: true
+  message:
+    - "{PREFIX}: &c¡aVerificaçãoDeCaptchaÉNecessária!"
+    - "&cPor favor, responda a pergunta abaixo para se registrar usando /verify
+    <respuesta>"
+    - "&e¿Qual é o resultadode &f&o{MATH_FORMULA}?"
+  max-attempts: 2
+  punishments:
+    - ban {PLAYER} &c¡Você falhou no Captcha muitas vezes!
+  wrong-answer:
+    - "{PREFIX}: &c¡Sua resposta está incorreta!"
+  correct-answer:
+    - "{PREFIX}: &a¡Sua resposta está correta, agora você pode se registrar!"
+  register-not-allowed:
+    - "{PREFIX}: &c¡Você não tem permissão para se registrar sem concluir o Captcha!"
+
+# Teleporte durante o login e após o login em um local personalizado
+teleport:
+  enabled: false
+  login-teleport:
+    world: world
+    x: 0.0
+    y: 70.0
+    z: 0.0
+  post-login-teleport:
+    world: world # Escreva "mais recente" para usar o último local no servidor.
+    x: 0.0
+    y: 70.0
+    z: 0.0
+
+safety:
+  players-same-ip: 2 # Quantos jogadores podem ser conectados ao mesmo tempo a partir do mesmo endereço IPv4?
+  register-same-ip: 2 # Quantas contas podem ser registradas no mesmo IPv4?
+
+# Configuração de senhas seguras
+safe-passwords:
+  force-safe:
+    enabled: true # Ativar ou desativar a função de senha segura forçada
+    min-length: 8 # Comprimento mínimo de senha
+    min-uppercase: 1 # Número mínimo de caracteres de capital
+    min-numbers: 2 # númeroMínimoDeCaracteresNuméricos
+    min-special: 1 # Número mínimo de caracteres especiais
+    allowed-special:
+      - "@"
+      - ^
+      - "-"
+      - _
+      - "#"
+      - "!"
+      - "?"
+      - "*"
+      - $
+      - "%"
+      - "&"
+      - "*"
+
+# Configuração de email
+email:
+  enabled: false
+  email-smtp: smtp.gmail.com # O provedor de servidor SMTP.
+  email-port: 465 # A porta usada pelo servidor SMTP.
+  use-tls: true # Use a conexão segura TLS.
+  email-account: "" # Sua conta de email (por exemplo, jeb@mojang.com).
+  email-password: "" # A senha associada à sua conta de email.
+  email-sender-name: LightLogin # O nome do remetente de email.
+  recovery-password-min-length: 8 # Comprimento de senha gerada automaticamente.
+  recovery-min-delay: 90 # O mínimo de minutos entre cada solicitação de redefinição.
+  email-subject: Sua nova senha do LightLogin! # Assunto do email de recuperação.
+  email-text-content: #ConteúdoDeEmail,
+    - estimado {PLAYER},
+    - "Esta é a nova senha temporária que você acabou de solicitar ao servidor:"
+    - "Senha: {PASSWORD}"
+    - Por favor, não compartilhe e sinta -se à vontade para alterá -lo mais tarde.
+    - ""
+    - ~ miServidorMinecraft
+
+# Configure sons durante a fase de login
+# Consulte os nomes de som na API Bukkit, conforme especificado por sua versão,
+# Você pode encontrar uma lista deles aqui (https://hub.spigotmc.org/javadocs/bukkit/org/bukkit/Sound.html)
+sounds:
+  enabled: true
+  successful-login: BLOCK_NOTE_BLOCK_HARP # O som a ser reproduzido após o log corretamente.
+  wrong-password: ENTITY_VILLAGER_HURT # O som a reproduzir quando o usuário grava uma senha incorreta.
+  action-bar-tick: BLOCK_LEVER_CLICK # O som reproduzido para a função da barra de tempo.
+
+# Animação de login remoto
+# Esse recurso permite uma animação que mostra quanto tempo o jogador deixou para se autenticar.
+login-animation:
+  enabled: true
+  display-type: ACTION_BAR # Opções disponíveis: "Title" ou "Action_bar".
+  format: "&7[{BAR}&7] &e Login remoto &c{TIME}" # O formato de texto usado.
+  bar-length: 24 # O comprimento da barra gerada.
+  bar-character-passed: "|" # O personagem usado para indicar o tempo decorrido.
+  bar-character-not-passed: "|" # O personagem usado para indicar o tempo restante.
+  bar-time-passed-colour: "&c" # A cor usada para o tempo que já passou.
+  bar-time-not-passed-colour: "&a" # A cor usada para o tempo que ainda não passou.
+
+# Função de acesso administrativo temporário
+# Essa função de console exclusiva permite que os administradores concedam uma senha temporária para acessar uma de suas contas de usuário por purificação ou teste, sem afetar sua privacidade.
+temp-password:
+  secret-key: L&UJ6tT% # ¡Por favor, mude isso!
+  password-timeout: 180 # Depois de quantos segundos essa senha temporária expira.
+
+# Título e legenda durante a fase de login e registro
+title:
+  enabled: true
+  login-title-text: "&eFaça login &f{PLAYER}&e!" # Espaço reservado {prefix} y {player} descartles
+  login-subtitle-text: "&7Usa &7/&elogin &7<&epassword&7>"
+  register-title-text: "&ePor favor, registre -se &f{PLAYER}&e!"
+  register-subtitle-text: "&7Usa &7/&eregister &7<&epassword&7> &7<&epassword&7>"
+  fade-in: 0
+  fade-out: 0
+  stay: 20
+  repeat-delay: 20
+
+# Configuração da mensagem
+messages:
+  prefix: "&7╓&eLightLogin&7╛&f" # Prefixo para mensagens complementares
+  player-only-command:
+    - "{PREFIX}: &cEste comando só pode ser executado por um jogador."
+  missing-permission:
+    - "{PREFIX}: &cVocê não tem permissão &l{PERMISSION}"
+  incorrect-command-usage:
+    - "{PREFIX}: &cO uso deste comando está incorreto!"
+  register-message:
+    - "{PREFIX}: &cPor favor, registre se usando o comando:"
+    - "{PREFIX}: &e/register <psw> <psw>"
+  register-incorrect-usage:
+    - "{PREFIX}: &cUso incorreto do comando de registro."
+    - "{PREFIX}: &cUsa &e/register <contraseña> <contraseña>"
+  register-unequal-passwords:
+    - "{PREFIX}: &cA senha incorreta foi escrita."
+    - "{PREFIX}: &cAs duas senhas não se correspondem."
+  register-error:
+    - "{PREFIX}: &cAlgo deu errado durante o registro."
+  register-success:
+    - "{PREFIX}: &aVocê se registrou com sucesso! :)"
+    - "{PREFIX} &aCertifique -se de manter suas senhas e lesguas."
+  already-registered:
+    - "{PREFIX}: &c¡Você já está registrado!"
+    - "{PREFIX}: &cUsa &e/changepassword <contraseñaAntigua> <contraseñaNueva>"
+    - "{PREFIX}: &cSe você quiser alterar sua senha atual."
+  unregistered:
+    - "{PREFIX}: &cOutra pessoa tem desregistrado você!"
+    - "{PREFIX}: &cRegistre -se novamente com /register <contraseña> <contraseña>"
+  unregistered-success:
+    - "{PREFIX}: &aTemos com sucesso desregista esse jogador."
+  unsafe-password:
+    - "{PREFIX}: &cSua senha não é segura!"
+    - "{PREFIX}: &cDeve cumprir os seguintes critérios:"
+    - "&7- &cAl menos &e{MIN_LENGTH} &ccaracteres."
+    - "&7- &cAl menos &e{MIN_UPCASE} &cmayúsculas, &e{MIN_SPECIAL} &ccaracteres especiales,
+    &e{MIN_NUMBERS} &cnúmeros."
+    - "&7- &cPersonagens especiais permitidos: {SPECIAL}"
+  command-too-fast:
+    - "{PREFIX}: &cVocê está usando este comando muito rápido!"
+  login-already-authenticated:
+    - "{PREFIX}: &cVocê já está autenticado!"
+  login-took-too-much-time:
+    - "{PREFIX}: &4EXPULSO!"
+    - "&cDemorou muito para autenticar você."
+  login-error:
+    - "{PREFIX}: &cAlgo deu errado durante o login."
+  login-incorrect-usage:
+    - "{PREFIX}: &cUso incorreto do comando de login."
+    - "{PREFIX}: &cUsa &e/login <contraseña>"
+  login-success:
+    - "{PREFIX}: &aVocê tem sessão com sucesso."
+  login-auto:
+    - "{PREFIX}: &aVocê foi automaticamente autenticado."
+  login-messages:
+    - "{PREFIX}: &cFaça login usando o comando:"
+    - "{PREFIX}: &e/login <contraseña>"
+  login-unregistered:
+    - "{PREFIX}: &cVocê não pode fazer login sem ser registrado!"
+  login-wrong-password:
+    - "{PREFIX}: &cSenha de login incorreta!"
+  unregister-incorrect-usage:
+    - "{PREFIX}: &cUso incorreto do comando Deregistration."
+    - "{PREFIX}: &cUsa &e/unregister <jugador>"
+  unregister-not-found:
+    - "{PREFIX}: &cNão encontramos nenhum jogador registrado com esse nome."
+  changepassword-unregistered:
+    - "{PREFIX}: &cVocê não pode alterar a senha sem ser registrado."
+  changepassword-wrong-oldpassword:
+    - "{PREFIX}: &cSua senha antiga está incorreta!"
+  changepassword-changed:
+    - "{PREFIX}: &aSua senha antiga foi atualizada corretamente."
+  player-not-online:
+    - "{PREFIX}: &a¡Esse jogador não está online!"
+  players-same-ip: "{PREFIX}: &cMuitos jogadores estão conectados do seu endereço
+de rede!"
+  password-in-chat:
+    - "{PREFIX}: &c&lADVERTENCIA"
+    - "&7» &4Você escreveu sua senha no chat,"
+    - "&7» &4Sua mensagem foi cancelada, tenha cuidado!"
+  email-update-help:
+    - "{PREFIX}: &eAjuda por e -mail"
+    - "&7Defina seu e -mail de recuperação usando:"
+    - "&7/&eemail &7<&emiaEmail&7>"
+  email-invalid-format:
+    - "{PREFIX}: &cEste email tiene un formato inválido."
+  email-updated:
+    - "{PREFIX}: &aTu nuevo email ha sido configurado como &e{EMAIL}"
+  email-something-wrong:
+    - "{PREFIX}: &cAlgo salió mal al actualizar tu email."
+  password-reset-help:
+    - "{PREFIX}: &eAyuda para Restablecer Contraseña"
+    - "&7Restablece tu contraseña usando:"
+    - "&7/&eresetpassword"
+  password-reset-help-admins:
+    - "{PREFIX}: &eajudaParaRestaurarASenhaDosAdministradores"
+    - "&7Restaura a senha de qualquer jogador que use:"
+    - "&7/&eresetpassword &7<&6jugador&7>"
+  password-reset-missing-email:
+    - "{PREFIX}: &cNão podemos restaurar a senha"
+    - "&cPorque nenhum e -mail do destinatário foi associado."
+  password-reset-not-enabled:
+    - "{PREFIX}: &cA recuperação de senha de email não foi configurada"
+    - "&cPelos administradores deste servidor."
+  password-reset-failed:
+    - "{PREFIX}: &cAlgo deu errado ao restaurar a senha de &e{PLAYER}&c."
+  password-reset-success:
+    - "{PREFIX}: &aEnviamos com sucesso um e -mail de restauração para &e{EMAIL}."
+  password-reset-too-early:
+    - "{PREFIX}: &cVocê precisa esperar mais antes de solicitar uma nova restauração
+de senha."
+  temp-login-wrong-password:
+    - "{PREFIX}: &c¡Você inseriu a chave de segurança incorreta para adicionar um
+Senha temporária!"
+    - "-  &cVerifique seu arquivo de configuração para confirmá -lo."
+  added-temp-login-password:
+    - "{PREFIX}: &eAdicionamos com sucesso uma senha temporária para o jogador {PLAYER}."
+  cannot-register-too-many-ip:
+    - "{PREFIX}: &cVocê não pode se registrar porque o número máximo de
+Contas IP!"
+  login-data-not-found:
+    - "{PREFIX}: &cNenhum dado de login para este jogador foi encontrado."
+  login-data-display:
+    - "{PREFIX}: &eResultados dos dados de login"
+    - "&7&oPor razões de privacidade, não mostramos as senhas ou hash do Usuários."
+    - "&7UUID: &f{UUID}"
+    - "&7Email: &f{EMAIL}"
+    - "&7Última IP: &f{IP}"
+    - "&7Último login: &f{LOGIN}"
