@@ -3,7 +3,7 @@ main: "top.cmarco.lightlogin.LightLoginPlugin"
 version: ${project.version}
 load: 'POSTWORLD'
 folia-supported: false
-api-version: "1.20"
+api-version: "1.16"
 author: "CMarco"
 database: false
 description: "Optimised and Safe SpigotMC Software for Authentication"
