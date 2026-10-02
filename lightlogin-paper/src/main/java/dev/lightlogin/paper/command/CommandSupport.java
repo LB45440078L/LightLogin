@@ -96,6 +96,22 @@ public abstract class CommandSupport {
     }
 
     /**
+     * Fires an API event.
+     *
+     * <p>Callers are already on the server thread (every result handler is delivered there), which is
+     * the thread Bukkit requires for a synchronous event. A listener that throws is caught and
+     * logged: one misbehaving plugin must not be able to fail a player's login.</p>
+     */
+    protected void fire(org.bukkit.event.Event event) {
+        try {
+            Bukkit.getPluginManager().callEvent(event);
+        } catch (RuntimeException e) {
+            ctx.plugin().getLogger().warning("An API listener threw for "
+                    + event.getClass().getSimpleName() + ": " + e.getMessage());
+        }
+    }
+
+    /**
      * Runs password-using work off the main thread with the password's ownership handed over
      * safely.
      *

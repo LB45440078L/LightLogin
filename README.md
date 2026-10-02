@@ -78,6 +78,7 @@ jar creeps back above 4 MB, so the size cannot regress unnoticed.
 * [Administration panel](docs/05-admin-panel.md)
 * [Migrating from the original plugin](docs/06-migration-from-original.md)
 * [Development and testing](docs/07-development.md)
+* [API for other plugins](docs/08-api.md) — login/registration events and the read-only facade.
 
 ## Licence
 

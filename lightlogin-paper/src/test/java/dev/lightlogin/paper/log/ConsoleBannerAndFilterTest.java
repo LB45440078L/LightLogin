@@ -5,6 +5,7 @@ import org.junit.jupiter.api.Test;
 
 import java.util.regex.Pattern;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
@@ -25,6 +26,33 @@ class ConsoleBannerAndFilterTest {
             assertFalse(BLOCK_OR_BOX.matcher(line).find(),
                     "block/box drawing character in banner line: " + line);
         }
+    }
+
+    @Test
+    @DisplayName("every banner line is the same width, so the art cannot shear")
+    void bannerIsRectangular() {
+        int expected = -1;
+        for (String line : ConsoleBanner.bannerArt()) {
+            if (line.isBlank()) {
+                continue;
+            }
+            if (expected < 0) {
+                expected = line.length();
+            }
+            assertEquals(expected, line.length(),
+                    "banner line is " + line.length() + " wide but the block is " + expected
+                            + " wide, so the art will shear: " + line);
+        }
+
+        // The regression this guards: a Java literal written with doubled backslashes renders two
+        // characters where the art needs one, which pushed the descender of the "g" out of line.
+        for (String line : ConsoleBanner.bannerArt()) {
+            assertFalse(line.contains("\\\\"),
+                    "the art contains a doubled backslash, which shifts the glyphs: " + line);
+        }
+        // The "g" descender must be present and single-stroked, or the wordmark is not the intended one.
+        assertTrue(java.util.Arrays.stream(ConsoleBanner.bannerArt()).anyMatch(l -> l.contains("|___/")),
+                "the descender rows of the wordmark are missing");
     }
 
     @Test

@@ -161,11 +161,11 @@ public final class ConfigLoader {
     }
 
     private static VoidWorldConfig loadVoidWorld(ConfigSource s, VoidWorldConfig d) {
-        String mode = s.getString("void-world.mode", d.endStyleVoid() ? "THE_END" : "NORMAL");
         return new VoidWorldConfig(
                 s.getBoolean("void-world.enabled", d.enabled()),
                 s.getString("void-world.name", d.worldName()),
-                "THE_END".equalsIgnoreCase(mode),
+                VoidWorldConfig.Dimension.fromString(
+                        s.getString("void-world.dimension", d.dimension().name()), d.dimension()),
                 s.getDouble("void-world.spawn-y", d.spawnY()),
                 s.getBoolean("void-world.return-to-original", d.returnToOriginal()));
     }

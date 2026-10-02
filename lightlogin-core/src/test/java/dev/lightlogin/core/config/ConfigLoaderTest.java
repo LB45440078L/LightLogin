@@ -43,7 +43,7 @@ class ConfigLoaderTest {
                 .put("web-panel.bind-address", "0.0.0.0")
                 .put("web-panel.port", 9000)
                 .put("void-world.enabled", true)
-                .put("void-world.mode", "THE_END"));
+                .put("void-world.dimension", "END"));
 
         assertEquals("fr", config.language());
         assertEquals(DatabaseConfig.DatabaseType.POSTGRESQL, config.database().type());
@@ -56,7 +56,19 @@ class ConfigLoaderTest {
         assertEquals(9000, config.web().port());
         assertFalse(config.web().isLoopbackBind());
         assertTrue(config.voidWorld().enabled());
-        assertTrue(config.voidWorld().endStyleVoid());
+        assertEquals(VoidWorldConfig.Dimension.END, config.voidWorld().dimension());
+
+        assertEquals(VoidWorldConfig.Dimension.NORMAL,
+                ConfigLoader.load(MapConfigSource.empty().put("void-world.dimension", "NORMAL"))
+                        .voidWorld().dimension());
+        // The server's own vocabulary is accepted as a synonym.
+        assertEquals(VoidWorldConfig.Dimension.NORMAL,
+                ConfigLoader.load(MapConfigSource.empty().put("void-world.dimension", "OVERWORLD"))
+                        .voidWorld().dimension());
+        // An unrecognised value falls back to the default rather than failing startup.
+        assertEquals(VoidWorldConfig.Dimension.END,
+                ConfigLoader.load(MapConfigSource.empty().put("void-world.dimension", "NETHER"))
+                        .voidWorld().dimension());
     }
 
     @Test

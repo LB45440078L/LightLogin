@@ -4,6 +4,10 @@ import dev.lightlogin.core.captcha.CaptchaChallenge;
 import dev.lightlogin.core.captcha.CaptchaResult;
 import dev.lightlogin.core.crypto.ConstantTime;
 import dev.lightlogin.core.model.AuthResult;
+import dev.lightlogin.paper.api.AuthMethod;
+import dev.lightlogin.paper.api.PlayerAuthFailedEvent;
+import dev.lightlogin.paper.api.PlayerAuthenticatedEvent;
+import dev.lightlogin.paper.api.PlayerRegisteredEvent;
 import dev.lightlogin.paper.auth.AuthGate;
 import dev.lightlogin.paper.auth.LoginEffects;
 import dev.lightlogin.paper.bootstrap.PluginContext;
@@ -92,15 +96,32 @@ public final class AuthCommands extends CommandSupport {
                         System.currentTimeMillis() + ctx.config().security().sessionTtlMillis());
                 send(player, "login.success", of("PLAYER", player.getName()));
                 player.playSound(player.getLocation(), Sound.ENTITY_PLAYER_LEVELUP, 0.7f, 1.4f);
+                // Announced last, so a listener sees a fully authenticated player: the gate is
+                // released, the session is remembered and the login world has already been reversed.
+                fire(new PlayerAuthenticatedEvent(player, ipOf(player), AuthMethod.PASSWORD));
             }
             case AuthResult.WrongPassword wrong -> {
                 send(player, "login.wrong-password",
                         of("ATTEMPTS", String.valueOf(wrong.attemptsRemaining())));
                 player.playSound(player.getLocation(), Sound.ENTITY_VILLAGER_HURT, 0.8f, 1f);
+                fire(new PlayerAuthFailedEvent(player, ipOf(player),
+                        PlayerAuthFailedEvent.Reason.WRONG_PASSWORD, wrong.attemptsRemaining()));
             }
-            case AuthResult.NotRegistered ignored -> send(player, "login.not-registered");
-            case AuthResult.Locked ignored -> send(player, "login.locked");
-            case AuthResult.RateLimited ignored -> send(player, "rate-limited");
+            case AuthResult.NotRegistered ignored -> {
+                send(player, "login.not-registered");
+                fire(new PlayerAuthFailedEvent(player, ipOf(player),
+                        PlayerAuthFailedEvent.Reason.NOT_REGISTERED, -1));
+            }
+            case AuthResult.Locked ignored -> {
+                send(player, "login.locked");
+                fire(new PlayerAuthFailedEvent(player, ipOf(player),
+                        PlayerAuthFailedEvent.Reason.LOCKED, 0));
+            }
+            case AuthResult.RateLimited ignored -> {
+                send(player, "rate-limited");
+                fire(new PlayerAuthFailedEvent(player, ipOf(player),
+                        PlayerAuthFailedEvent.Reason.RATE_LIMITED, -1));
+            }
             case AuthResult.IpBanned banned -> player.kick(SERIALIZER.deserialize(
                     "&cYou are banned from this server. &7" + banned.reason()));
             case AuthResult.Error error -> {
@@ -170,11 +191,15 @@ public final class AuthCommands extends CommandSupport {
         switch (result) {
             case AuthResult.Success ignored -> {
                 send(player, "register.success", of("PLAYER", player.getName()));
+                // Fired before authentication: the account row exists, but the player has not been
+                // let through the gate yet, so this is the right place for first-join housekeeping.
+                fire(new PlayerRegisteredEvent(player, ipOf(player)));
                 if (ctx.config().login().autoLoginAfterRegister()) {
                     AuthGate.Pending pending = ctx.authGate().complete(player.getUniqueId()).orElse(null);
                     if (pending != null) {
                         LoginEffects.restore(ctx, player, pending);
                         send(player, "login.auto");
+                        fire(new PlayerAuthenticatedEvent(player, ipOf(player), AuthMethod.REGISTRATION));
                     }
                 } else {
                     ctx.authGate().update(player.getUniqueId(), p -> p.withRegistered(true));

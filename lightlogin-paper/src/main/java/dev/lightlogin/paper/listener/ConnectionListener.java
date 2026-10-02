@@ -3,10 +3,13 @@ package dev.lightlogin.paper.listener;
 import dev.lightlogin.core.model.Account;
 import dev.lightlogin.core.security.AuditAction;
 import dev.lightlogin.core.service.IpBanService;
+import dev.lightlogin.paper.api.AuthMethod;
+import dev.lightlogin.paper.api.PlayerAuthenticatedEvent;
 import dev.lightlogin.paper.auth.AuthGate;
 import dev.lightlogin.paper.auth.LoginEffects;
 import dev.lightlogin.paper.bootstrap.PluginContext;
 import net.kyori.adventure.text.serializer.legacy.LegacyComponentSerializer;
+import org.bukkit.Bukkit;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.EventPriority;
 import org.bukkit.event.Listener;
@@ -115,6 +118,7 @@ public final class ConnectionListener implements Listener {
             // so it must not run on the server thread.
             ctx.async().run(() -> ctx.auditService().record(player.getName(), AuditAction.LOGIN_SUCCESS,
                     uuid, "session resumed", ip));
+            fireEvent(new PlayerAuthenticatedEvent(player, ip, AuthMethod.SESSION));
             return;
         }
         AuthGate.Pending pending = ctx.authGate().begin(player, ip, true);
@@ -134,5 +138,19 @@ public final class ConnectionListener implements Listener {
         var address = player.getAddress();
         return address == null || address.getAddress() == null
                 ? "" : address.getAddress().getHostAddress();
+    }
+
+    /**
+     * Fires an API event on the server thread.
+     *
+     * <p>Wrapped because a throwing listener must not be able to break a player's join.</p>
+     */
+    private void fireEvent(org.bukkit.event.Event event) {
+        try {
+            Bukkit.getPluginManager().callEvent(event);
+        } catch (RuntimeException e) {
+            ctx.plugin().getLogger().warning("An API listener threw for "
+                    + event.getClass().getSimpleName() + ": " + e.getMessage());
+        }
     }
 }

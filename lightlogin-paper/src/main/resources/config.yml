@@ -129,13 +129,18 @@ safety:
 
 # -------------------------------------------------------------------------------------
 # Blank login world (experimental)
-#   Players are moved to a void world while authenticating, keeping the main world free of
-#   unauthenticated entities and chunk activity.
+#   Players are moved to a separate, empty world while authenticating, keeping the main world
+#   free of unauthenticated entities and chunk activity.
+#
+#   dimension: END    -> the blank world is generated in the End (dark sky, End ambience)
+#              NORMAL -> the blank world is generated in the overworld (normal sky)
+#   Both variants contain no terrain, no structures and no mobs; the dimension only changes
+#   how the empty world looks. Neither is the server's real end or overworld.
 # -------------------------------------------------------------------------------------
 void-world:
   enabled: false
   name: lightlogin_void
-  mode: NORMAL          # NORMAL | THE_END
+  dimension: END        # END | NORMAL
   spawn-y: 100.0
   return-to-original: true
 

@@ -22,14 +22,24 @@ public final class ConsoleBanner {
 
     private static final char SECTION = '\u00A7';
 
+    /**
+     * The wordmark.
+     *
+     * <p>Every line is exactly the same length and none is over 80 columns wide, so the block cannot
+     * shear. An earlier revision had doubled backslashes, which pushed the descender of the "g" two
+     * columns to the right and broke the art; the equal-width assertion in the test suite now makes
+     * that class of mistake a build failure.</p>
+     *
+     * <p>Generated with {@code pyfiglet -f standard LightLogin} rather than drawn by hand.</p>
+     */
     private static final String[] BANNER = {
             "",
-            "  _     _       _     _             _             ",
-            " | |   (_) __ _| |__ | |    ___    | | ___  _ __  ",
-            " | |   | |/ _` | '_ \\| |   / _ \\   | |/ _ \\| '_ \\ ",
-            " | |___| | (_| | | | | |__| (_) |  | | (_) | | | |",
-            " |_____|_|\\__, |_| |_|_____\\___/   |_|\\___/|_| |_|",
-            "          |___/                                   ",
+            "   _     _       _     _   _                _       ",
+            "  | |   (_) __ _| |__ | |_| |    ___   __ _(_)_ __  ",
+            "  | |   | |/ _` | '_ \\| __| |   / _ \\ / _` | | '_ \\ ",
+            "  | |___| | (_| | | | | |_| |__| (_) | (_| | | | | |",
+            "  |_____|_|\\__, |_| |_|\\__|_____\\___/ \\__, |_|_| |_|",
+            "           |___/                      |___/         ",
             "",
     };
 

@@ -30,6 +30,7 @@ import dev.lightlogin.paper.command.AccountCommands;
 import dev.lightlogin.paper.command.AdminCommands;
 import dev.lightlogin.paper.command.AuthCommands;
 import dev.lightlogin.paper.command.CommandRegistry;
+import dev.lightlogin.paper.api.LightLoginApi;
 import dev.lightlogin.paper.config.BukkitConfigSource;
 import dev.lightlogin.paper.geo.MaxMindCountryResolver;
 import dev.lightlogin.paper.library.Libraries;
@@ -219,6 +220,14 @@ public final class LightLoginBootstrap {
                 .build();
         this.ctx = context;
 
+        // Publish the API before anything can consume it. Two routes on purpose: a static accessor
+        // for a plugin that declares a soft dependency, and the services manager, which is the
+        // idiomatic way to find a capability without holding a hard reference to this plugin.
+        LightLoginApi api = new LightLoginApi(context);
+        LightLoginApi.install(api);
+        Bukkit.getServicesManager().register(LightLoginApi.class, api, plugin,
+                org.bukkit.plugin.ServicePriority.Normal);
+
         banner.step("Registering commands and listeners...");
         registerCommands(context);
         registerListeners(context);
@@ -255,6 +264,8 @@ public final class LightLoginBootstrap {
             }
             ctx.async().close();
             ctx.closePersistence();
+            // Retire the API last, so a listener that runs during shutdown still finds it.
+            LightLoginApi.uninstall();
         }
     }
 

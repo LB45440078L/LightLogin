@@ -155,16 +155,21 @@ Without a database, country blocking is **inert**: it never blocks, rather than 
 
 ## `void-world` (experimental)
 
-| Key | Default |
-|---|---|
-| `enabled` | `false` |
-| `name` | `lightlogin_void` |
-| `mode` | `NORMAL` or `THE_END` |
-| `spawn-y` | `100.0` |
-| `return-to-original` | `true` — restores the join location after login |
+| Key | Default | Notes |
+|---|---|---|
+| `enabled` | `false` | Whether players are moved to a blank world while authenticating |
+| `name` | `lightlogin_void` | The world to create or reuse |
+| `dimension` | `END` | `END` or `NORMAL`. Both generate an **empty** world; this only chooses which dimension it is generated in — the End's dark sky and ambience, or a normal overworld sky. `OVERWORLD` and `THE_END` are accepted as synonyms. |
+| `spawn-y` | `100.0` | The Y at which the login platform sits |
+| `return-to-original` | `true` | Restores the join location after login |
 
-A second world has a real cost (its own chunk cache). Leave it off unless unauthenticated entities
-in the main world are a problem for you.
+Whichever dimension is chosen, the world is generated with no terrain layers and nothing is allowed
+to happen in it: no structures, no mob spawning (including patrols and wandering traders), no fire
+tick, no mob griefing, a random tick speed of zero, and the spawn area is not force-loaded. It is a
+custom world of the configured name, so it never touches the server's real end or overworld.
+
+A second world still has a real cost (its own chunk cache and a world-list entry). Leave it off
+unless unauthenticated entities in the main world are a problem for you.
 
 ## `email`
 

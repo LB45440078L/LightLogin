@@ -88,6 +88,20 @@ public final class AuthGate {
     }
 
     /**
+     * When the remembered session for a player expires, or {@code 0} when there is none.
+     *
+     * <p>Read-only, and safe to call from the server thread; expired entries are treated as absent
+     * without mutating the map, so this never races with {@link #remember}.</p>
+     */
+    public long autoLoginExpiry(UUID uuid) {
+        AutoLogin auto = autoLogins.get(uuid);
+        if (auto == null || System.currentTimeMillis() >= auto.untilMillis()) {
+            return 0L;
+        }
+        return auto.untilMillis();
+    }
+
+    /**
      * The registered/auto-login decision carried from the asynchronous pre-login phase to the
      * main-thread join phase.
      *
