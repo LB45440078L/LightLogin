@@ -1,0 +1,3 @@
+# Ordered list of migration resources, applied in order, each exactly once.
+# Read from the classpath because directory scanning does not work inside a packaged jar.
+V1__init.sql

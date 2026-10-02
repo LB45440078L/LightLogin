@@ -1,0 +1,122 @@
+# LightLogin messages.
+# Colour codes use '&' (e.g. &a). Placeholders are written {LIKE_THIS}.
+# A message may be a single line or a list of lines.
+
+prefix: '&6&lLightLogin &r&7» &f'
+
+player-only: '&cThis command can only be used by a player.'
+no-permission: '&cYou are missing the permission &e{PERMISSION}&c.'
+unknown-command: '&cUnknown subcommand. Try &e/lightlogin help&c.'
+rate-limited: '&cYou are doing that too quickly. Please wait a moment.'
+
+register:
+  prompt:
+    - '&ePlease register to play.'
+    - '&7Use &f/register <password> <password>'
+    - '&7Or run &f/register&7 to type it in a private window.'
+  already-registered: '&cYou are already registered. Use &e/changepassword&c.'
+  mismatch: '&cThe two passwords do not match.'
+  success: '&aYou are now registered. Welcome!'
+  disabled: '&cRegistration is disabled on this server.'
+  limit-reached: '&cToo many accounts have been registered from your address.'
+
+login:
+  prompt:
+    - '&ePlease log in to play.'
+    - '&7Use &f/login <password>'
+    - '&7Or run &f/login&7 to type it in a private window.'
+  success: '&aYou are now logged in.'
+  auto: '&aYou were logged in automatically.'
+  wrong-password: '&cWrong password. &7({ATTEMPTS} attempts left)'
+  not-registered: '&cYou are not registered. Use &e/register&c.'
+  already-authenticated: '&cYou are already logged in.'
+  locked: '&cYour account is temporarily locked. Try again later.'
+  timed-out: '&cYou took too long to authenticate.'
+  action-bar: '&7Time left: &c{TIME}s'
+
+captcha:
+  prompt:
+    - '&ePlease complete the CAPTCHA to continue.'
+    - '&f{PROMPT}'
+    - '&7Answer with &f/verify <answer>'
+  correct: '&aCorrect!'
+  wrong: '&cThat answer is incorrect. &7({ATTEMPTS} attempts left)'
+  required: '&cYou must complete the CAPTCHA first.'
+  failed: '&cYou failed the CAPTCHA too many times.'
+
+password:
+  change-usage: '&cUsage: /changepassword <old> <new>'
+  change-wrong-old: '&cYour current password is incorrect.'
+  change-success: '&aYour password has been changed.'
+  unsafe: '&cThat password is not acceptable:'
+  unsafe-line: '&7- &c{REASON}'
+  too-fast: '&cPlease wait a moment before trying again.'
+
+unregister:
+  usage: '&cUsage: /unregister <player>'
+  not-found: '&cNo such account was found.'
+  success: '&aThat account has been unregistered.'
+  notify: '&cYour account has been unregistered by an administrator.'
+
+unlogin:
+  usage: '&cUsage: /unlogin [player]'
+  success: '&aYour login session has been cleared.'
+  player-success: '&aThe session for &e{PLAYER}&a has been cleared.'
+  not-online: '&cThat player is not online.'
+
+email:
+  usage: '&eSet your recovery email with &f/email <address>'
+  invalid: '&cThat does not look like a valid email address.'
+  updated: '&aYour recovery email is now &e{EMAIL}&a.'
+
+recovery:
+  usage: '&eRequest a password reset with &f/resetpassword'
+  admin-usage: '&eReset another player with &f/resetpassword <player>'
+  disabled: '&cEmail recovery is not enabled on this server.'
+  no-email: '&cNo recovery email is set for that account.'
+  cooldown: '&cA reset was requested recently. Please wait.'
+  sent: '&aIf that account exists, a reset email has been sent.'
+  failed: '&cThe reset email could not be sent. Please contact an administrator.'
+
+temppassword:
+  usage: '&cUsage (console only): temppassword <player> <secret-key>'
+  wrong-key: '&cInvalid secret key.'
+  success: '&aA temporary password was set for &e{PLAYER}&a.'
+  player-message: '&eA temporary password has been set for your account by an administrator.'
+
+chat:
+  password-blocked:
+    - '&c&lWARNING &r&7» &cYou typed your password in chat.'
+    - '&7» &cYour message was cancelled. Use &f/login&c instead.'
+
+connection:
+  ip-banned: '&cYou are banned from this server. &7{REASON}'
+  country-blocked: '&cConnections from your country are not allowed.'
+  too-many-accounts: '&cToo many players are connected from your address.'
+  throttled: '&cThe server is busy. Please try again in a moment.'
+
+void-world:
+  teleported: '&7You have been moved to a secure login area.'
+  returning: '&7Welcome back!'
+
+admin:
+  usage: '&eLightLogin administration. Subcommands: &freload, gui, stats, ban, unban, reset, unregister, info'
+  reloaded: '&aConfiguration reloaded.'
+  stats:
+    - '&6&lLightLogin &r&7» &fStatistics'
+    - '&7Accounts: &f{ACCOUNTS}'
+    - '&7Active bans: &f{BANS}'
+    - '&7Live sessions: &f{SESSIONS}'
+    - '&7Audit entries: &f{AUDIT}'
+    - '&7Auth workers free: &f{WORKERS}'
+  banned: '&aBanned &e{TARGET}&a.'
+  unbanned: '&aUnbanned &e{TARGET}&a.'
+  not-banned: '&cNo ban found for &e{TARGET}&c.'
+  reset: '&aNew temporary password for &e{PLAYER}&a: &f{PASSWORD}'
+  player-not-found: '&cNo such player.'
+
+login-data-line: '&7{LABEL}: &f{VALUE}'
+
+gui:
+  title: '&8LightLogin &7» &fModeration'
+  no-permission: '&cYou do not have permission to use the moderation menu.'

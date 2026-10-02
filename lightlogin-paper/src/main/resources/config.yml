@@ -1,0 +1,188 @@
+# =====================================================================================
+#  LightLogin configuration
+#  Schema version 2. Every key is read by the plugin; a key that nothing reads is a bug.
+# =====================================================================================
+
+# Do not change: the plugin uses this to detect files written by an older schema.
+config-version: 2
+
+language: en
+
+# -------------------------------------------------------------------------------------
+# Database
+#   type: SQLITE | MARIADB | POSTGRESQL
+#   The password may be stored in plaintext, or encrypted by the plugin (see security.key-file).
+#   SQLite needs no credentials and is the right choice for a single server.
+# -------------------------------------------------------------------------------------
+database:
+  type: SQLITE
+  host: 127.0.0.1
+  port: 3306
+  name: lightlogin
+  username: root
+  password: ''
+  sqlite-file: lightlogin.db
+  pool-size: 6
+  connection-timeout-millis: 10000
+
+# -------------------------------------------------------------------------------------
+# Security
+#   argon2: the password hashing work factors. Memory is the most valuable knob.
+#           Values below the OWASP floor (19 MiB, 2 iterations) are raised automatically.
+#   pepper-env: name of an environment variable holding a server-side pepper. Setting it means
+#               a leaked database cannot be cracked even with the algorithm and parameters.
+#   key-file: 256-bit master key used to encrypt secrets in this file. Created on first run.
+# -------------------------------------------------------------------------------------
+security:
+  argon2:
+    memory-kib: 65536      # 64 MiB
+    iterations: 3
+    parallelism: 1
+    salt-bytes: 16
+    hash-bytes: 32
+  pepper-env: LIGHTLOGIN_PEPPER
+  key-file: lightlogin.key
+  session-ttl-millis: 43200000   # 12 hours
+  max-failed-attempts: 5
+  lockout-millis: 900000         # 15 minutes
+  mask-commands-in-logs: true
+  audit-retention-days: 90
+
+# -------------------------------------------------------------------------------------
+# Password policy
+# -------------------------------------------------------------------------------------
+password-policy:
+  min-length: 8
+  max-length: 64
+  min-uppercase: 1
+  min-lowercase: 1
+  min-digits: 1
+  min-special: 1
+  allowed-special: ['!', '@', '#', '$', '%', '^', '&', '*', '-', '_', '?', '+', '=']
+  deny-username: true
+  deny-common: true
+  banned-substrings: []
+
+# -------------------------------------------------------------------------------------
+# Anti-bot CAPTCHA
+#   mode: ARITHMETIC (human-friendly) or PROOF_OF_WORK (hostile to automated floods)
+# -------------------------------------------------------------------------------------
+captcha:
+  enabled: true
+  mode: ARITHMETIC
+  max-attempts: 3
+  ttl-millis: 120000
+  cooldown-millis: 5000
+  difficulty-bits: 16      # proof-of-work only
+  require-for-register: true
+  require-for-login: false
+  punish-on-failure: true
+
+# -------------------------------------------------------------------------------------
+# Rate limiting and flood protection
+#   A token bucket per IP: *-burst is the allowance, *-rate is the sustained per-second rate.
+# -------------------------------------------------------------------------------------
+rate-limit:
+  connection-burst: 8
+  connection-rate: 1.5
+  login-burst: 6
+  login-rate: 0.5
+  command-burst: 6
+  command-rate: 2.0
+  max-concurrent-auth: 8
+  join-throttle-millis: 0
+  max-joins-per-second: 20
+  auto-ban-on-flood: true
+
+# -------------------------------------------------------------------------------------
+# Network safety
+#   country-blocking requires a MaxMind GeoLite2 Country database; without one it is inert.
+# -------------------------------------------------------------------------------------
+safety:
+  max-players-per-ip: 3
+  max-registrations-per-ip: 2
+  ip-bans-enabled: true
+  auto-ban-on-bruteforce: true
+  bruteforce-ban-millis: 3600000
+  country-blocking:
+    enabled: false
+    blocked: []
+    allowed: []
+    geoip-database: ''
+  whitelisted-ips: []
+
+# -------------------------------------------------------------------------------------
+# Blank login world (experimental)
+#   Players are moved to a void world while authenticating, keeping the main world free of
+#   unauthenticated entities and chunk activity.
+# -------------------------------------------------------------------------------------
+void-world:
+  enabled: false
+  name: lightlogin_void
+  mode: NORMAL          # NORMAL | THE_END
+  spawn-y: 100.0
+  return-to-original: true
+
+# -------------------------------------------------------------------------------------
+# Email (password recovery)
+# -------------------------------------------------------------------------------------
+email:
+  enabled: false
+  smtp-host: smtp.example.com
+  smtp-port: 587
+  use-tls: true
+  account: ''
+  password: ''
+  sender-name: LightLogin
+  subject: Your new LightLogin password
+  body:
+    - 'Dear {PLAYER},'
+    - ''
+    - 'Your new temporary password is: {PASSWORD}'
+    - ''
+    - 'Please change it after logging in.'
+  recovery-password-length: 12
+  recovery-cooldown-millis: 5400000
+  connection-timeout-millis: 15000
+
+# -------------------------------------------------------------------------------------
+# Local administration website
+#   Bound to loopback by default. To expose it, set allow-external-access: true AND put it
+#   behind a TLS-terminating reverse proxy.
+# -------------------------------------------------------------------------------------
+web-panel:
+  enabled: false
+  bind-address: 127.0.0.1
+  port: 8099
+  allow-external-access: false
+  trust-proxy-headers: false
+  session-ttl-millis: 1800000
+  max-login-attempts: 5
+  login-lockout-millis: 600000
+  require-totp: false
+  page-size: 25
+  external-redirect-url: ''
+
+# -------------------------------------------------------------------------------------
+# Login flow
+# -------------------------------------------------------------------------------------
+login:
+  timeout-millis: 120000
+  blindness: true
+  titles:
+    enabled: true
+  action-bar:
+    enabled: true
+  reminder-seconds: 5
+  allowed-commands:
+    - login
+    - register
+    - verify
+    - email
+    - resetpassword
+  command-delay-millis: 1000
+  teleport:
+    enabled: false
+    login-location: ''
+    return-location: ''
+  auto-login-after-register: true

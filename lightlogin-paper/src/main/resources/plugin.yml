@@ -1,0 +1,48 @@
+name: LightLogin
+version: '${project.version}'
+main: dev.lightlogin.paper.LightLoginPlugin
+api-version: '26.1'
+load: POSTWORLD
+folia-supported: false
+author: CMarco
+description: Modern, secure and high-performance authentication software for Paper servers.
+website: https://github.com/LB45440078L/LightLogin
+commands:
+  login:
+    aliases: [l, authenticate, auth]
+    description: Authenticate into the server.
+  register:
+    aliases: [reg]
+    description: Register an account.
+  verify:
+    description: Answer a CAPTCHA challenge.
+  changepassword:
+    aliases: [changepsw]
+    description: Change your current password.
+  unregister:
+    aliases: [unreg]
+    description: Remove an account from the server.
+  unlogin:
+    aliases: [unlog, unl, ul]
+    description: Invalidate your current login session.
+  email:
+    description: Set your recovery email address.
+  resetpassword:
+    aliases: [resetpsw]
+    description: Request a password reset through email.
+  temppassword:
+    aliases: [temppsw]
+    description: Generate a temporary password (console only).
+  login-data:
+    aliases: [logindata, userdata]
+    description: Read stored login data for a user.
+  lightlogin:
+    aliases: [ll]
+    description: Administrative entry point.
+permissions:
+  lightlogin.admin:
+    description: Access to all administrative LightLogin features.
+    default: op
+  lightlogin.moderator:
+    description: Access to the moderator GUI and basic moderation actions.
+    default: op

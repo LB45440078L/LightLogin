@@ -1,0 +1,200 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0"
+         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+    <modelVersion>4.0.0</modelVersion>
+
+    <parent>
+        <groupId>dev.lightlogin</groupId>
+        <artifactId>lightlogin-parent</artifactId>
+        <version>2.0.0</version>
+    </parent>
+
+    <artifactId>lightlogin-paper</artifactId>
+    <name>LightLogin :: Paper</name>
+    <description>The Paper plugin: commands, listeners, GUIs, void world, admin web panel and SMTP wiring.</description>
+
+    <dependencies>
+        <dependency>
+            <groupId>dev.lightlogin</groupId>
+            <artifactId>lightlogin-core</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>dev.lightlogin</groupId>
+            <artifactId>lightlogin-persistence</artifactId>
+        </dependency>
+
+        <dependency>
+            <groupId>io.papermc.paper</groupId>
+            <artifactId>paper-api</artifactId>
+            <scope>provided</scope>
+        </dependency>
+        <dependency>
+            <!-- Paper ships Log4j; used only to install the secret-redacting log filter. -->
+            <groupId>org.apache.logging.log4j</groupId>
+            <artifactId>log4j-core</artifactId>
+            <scope>provided</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.apache.logging.log4j</groupId>
+            <artifactId>log4j-api</artifactId>
+            <scope>provided</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.jetbrains</groupId>
+            <artifactId>annotations</artifactId>
+        </dependency>
+
+        <!-- Shaded into the plugin jar -->
+        <dependency>
+            <groupId>org.eclipse.angus</groupId>
+            <artifactId>angus-mail</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>com.maxmind.geoip2</groupId>
+            <artifactId>geoip2</artifactId>
+        </dependency>
+
+        <dependency>
+            <groupId>org.junit.jupiter</groupId>
+            <artifactId>junit-jupiter</artifactId>
+            <scope>test</scope>
+        </dependency>
+    </dependencies>
+
+    <build>
+        <resources>
+            <resource>
+                <directory>src/main/resources</directory>
+                <filtering>true</filtering>
+                <includes>
+                    <include>plugin.yml</include>
+                </includes>
+            </resource>
+            <resource>
+                <directory>src/main/resources</directory>
+                <filtering>false</filtering>
+                <excludes>
+                    <exclude>plugin.yml</exclude>
+                </excludes>
+            </resource>
+        </resources>
+        <plugins>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-compiler-plugin</artifactId>
+            </plugin>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-surefire-plugin</artifactId>
+            </plugin>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-shade-plugin</artifactId>
+                <executions>
+                    <execution>
+                        <id>default-shade</id>
+                        <phase>package</phase>
+                        <goals>
+                            <goal>shade</goal>
+                        </goals>
+                        <configuration>
+                            <createDependencyReducedPom>false</createDependencyReducedPom>
+                            <minimizeJar>false</minimizeJar>
+                            <filters>
+                                <filter>
+                                    <artifact>*:*</artifact>
+                                    <excludes>
+                                        <exclude>META-INF/*.SF</exclude>
+                                        <exclude>META-INF/*.DSA</exclude>
+                                        <exclude>META-INF/*.RSA</exclude>
+                                        <exclude>module-info.class</exclude>
+                                        <exclude>META-INF/versions/*/module-info.class</exclude>
+                                    </excludes>
+                                </filter>
+                            </filters>
+                            <relocations>
+                                <relocation>
+                                    <pattern>org.bouncycastle</pattern>
+                                    <shadedPattern>dev.lightlogin.libs.org.bouncycastle</shadedPattern>
+                                </relocation>
+                                <relocation>
+                                    <pattern>com.zaxxer.hikari</pattern>
+                                    <shadedPattern>dev.lightlogin.libs.com.zaxxer.hikari</shadedPattern>
+                                </relocation>
+                                <relocation>
+                                    <pattern>org.postgresql</pattern>
+                                    <shadedPattern>dev.lightlogin.libs.org.postgresql</shadedPattern>
+                                </relocation>
+                                <relocation>
+                                    <pattern>org.mariadb</pattern>
+                                    <shadedPattern>dev.lightlogin.libs.org.mariadb</shadedPattern>
+                                </relocation>
+                                <relocation>
+                                    <pattern>org.sqlite</pattern>
+                                    <shadedPattern>dev.lightlogin.libs.org.sqlite</shadedPattern>
+                                </relocation>
+                                <relocation>
+                                    <pattern>org.eclipse.angus</pattern>
+                                    <shadedPattern>dev.lightlogin.libs.org.eclipse.angus</shadedPattern>
+                                </relocation>
+                                <relocation>
+                                    <pattern>jakarta.mail</pattern>
+                                    <shadedPattern>dev.lightlogin.libs.jakarta.mail</shadedPattern>
+                                </relocation>
+                                <relocation>
+                                    <pattern>jakarta.activation</pattern>
+                                    <shadedPattern>dev.lightlogin.libs.jakarta.activation</shadedPattern>
+                                </relocation>
+                                <relocation>
+                                    <pattern>com.maxmind</pattern>
+                                    <shadedPattern>dev.lightlogin.libs.com.maxmind</shadedPattern>
+                                </relocation>
+                            </relocations>
+                        </configuration>
+                    </execution>
+                </executions>
+            </plugin>
+        </plugins>
+    </build>
+
+    <profiles>
+        <!--
+          Opt-in slim build: excludes the server-database drivers and the GeoIP reader from the
+          shaded jar, producing a much smaller plugin for SQLite-only servers. Enable with
+          `mvn -Pslim clean package`. Operators using this profile must place the driver they need
+          in `plugins/LightLogin/libs/` (documented in docs/07-development.md).
+        -->
+        <profile>
+            <id>slim</id>
+            <build>
+                <plugins>
+                    <plugin>
+                        <groupId>org.apache.maven.plugins</groupId>
+                        <artifactId>maven-shade-plugin</artifactId>
+                        <executions>
+                            <execution>
+                                <id>default-shade</id>
+                                <phase>package</phase>
+                                <goals>
+                                    <goal>shade</goal>
+                                </goals>
+                                <configuration>
+                                    <artifactSet>
+                                        <excludes>
+                                            <exclude>org.postgresql:postgresql</exclude>
+                                            <exclude>org.mariadb.jdbc:mariadb-java-client</exclude>
+                                            <exclude>com.maxmind.geoip2:geoip2</exclude>
+                                            <exclude>com.maxmind.db:maxmind-db</exclude>
+                                            <exclude>com.fasterxml.jackson.core:*</exclude>
+                                        </excludes>
+                                    </artifactSet>
+                                </configuration>
+                            </execution>
+                        </executions>
+                    </plugin>
+                </plugins>
+            </build>
+        </profile>
+    </profiles>
+</project>

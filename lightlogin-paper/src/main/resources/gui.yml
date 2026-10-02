@@ -1,0 +1,65 @@
+# LightLogin moderator GUI layout.
+# Materials are resolved at click time, so a corrected name takes effect on reload.
+# Slots are zero-based. Row 5 (slots 45-53) is reserved for navigation.
+
+title: '&8LightLogin &7» &fModeration'
+rows: 6
+page-size: 45
+
+items:
+  player-entry:
+    material: PLAYER_HEAD
+    name: '&e{PLAYER}'
+    lore:
+      - '&7UUID: &f{UUID}'
+      - '&7Last IP: &f{IP}'
+      - '&7Last login: &f{LAST_LOGIN}'
+      - '&7Registered: &f{REGISTERED}'
+      - ''
+      - '&aLeft-click &7for actions'
+  action-reset-password:
+    material: REDSTONE
+    name: '&cReset password'
+    lore:
+      - '&7Generates a new temporary password.'
+  action-ban-ip:
+    material: IRON_BARS
+    name: '&cBan last IP'
+    lore:
+      - '&7Bans the address this player last used.'
+  action-unban-ip:
+    material: BARRIER
+    name: '&aUnban last IP'
+    lore:
+      - '&7Removes a ban on that address.'
+  action-unregister:
+    material: WITHER_ROSE
+    name: '&cUnregister account'
+    lore:
+      - '&7Deletes the login record for this player.'
+  back:
+    material: ARROW
+    name: '&eBack'
+  close:
+    material: BARRIER
+    name: '&cClose'
+  previous:
+    material: PAPER
+    name: '&ePrevious page'
+  next:
+    material: PAPER
+    name: '&eNext page'
+  stats:
+    material: BOOK
+    name: '&eStatistics'
+    lore:
+      - '&7Accounts: &f{ACCOUNTS}'
+      - '&7Active bans: &f{BANS}'
+      - '&7Live sessions: &f{SESSIONS}'
+      - '&7Audit entries: &f{AUDIT}'
+  confirm:
+    material: LIME_DYE
+    name: '&aConfirm'
+  cancel:
+    material: GRAY_DYE
+    name: '&cCancel'
