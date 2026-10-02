@@ -55,9 +55,11 @@
         <!-- Plugins -->
         <compiler.plugin.version>3.16.0</compiler.plugin.version>
         <surefire.plugin.version>3.6.0</surefire.plugin.version>
+        <failsafe.plugin.version>3.6.0</failsafe.plugin.version>
         <shade.plugin.version>3.6.2</shade.plugin.version>
         <jar.plugin.version>3.4.2</jar.plugin.version>
         <asm.version>9.10.1</asm.version>
+        <slf4j.version>2.0.17</slf4j.version>
     </properties>
 
     <dependencyManagement>
@@ -194,6 +196,19 @@
                     <version>${surefire.plugin.version}</version>
                     <configuration>
                         <argLine>-XX:+EnableDynamicAgentLoading -Dfile.encoding=UTF-8</argLine>
+                    </configuration>
+                </plugin>
+                <plugin>
+                    <!--
+                      Integration tests run in the integration-test phase, i.e. AFTER package, so
+                      they can inspect the shaded jar that was just built. Run them with
+                      `mvn verify`; `mvn package` stops before this phase.
+                    -->
+                    <groupId>org.apache.maven.plugins</groupId>
+                    <artifactId>maven-failsafe-plugin</artifactId>
+                    <version>${failsafe.plugin.version}</version>
+                    <configuration>
+                        <argLine>-Dfile.encoding=UTF-8</argLine>
                     </configuration>
                 </plugin>
                 <plugin>

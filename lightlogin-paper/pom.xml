@@ -54,6 +54,16 @@
             <groupId>com.maxmind.geoip2</groupId>
             <artifactId>geoip2</artifactId>
         </dependency>
+        <dependency>
+            <!--
+              HikariCP needs slf4j at runtime and slf4j 2.x prints a warning when no provider is
+              found. Bundling the NOP provider (and relocating both) keeps the plugin
+              self-contained: no warning, and no shadowing of the server's own slf4j.
+            -->
+            <groupId>org.slf4j</groupId>
+            <artifactId>slf4j-nop</artifactId>
+            <version>${slf4j.version}</version>
+        </dependency>
 
         <dependency>
             <groupId>org.junit.jupiter</groupId>
@@ -90,6 +100,18 @@
             </plugin>
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-failsafe-plugin</artifactId>
+                <executions>
+                    <execution>
+                        <goals>
+                            <goal>integration-test</goal>
+                            <goal>verify</goal>
+                        </goals>
+                    </execution>
+                </executions>
+            </plugin>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-shade-plugin</artifactId>
                 <executions>
                     <execution>
@@ -113,26 +135,31 @@
                                     </excludes>
                                 </filter>
                             </filters>
+                            <!--
+                              Relocation rule: never relocate a library that ships
+                              META-INF/versions/** (multi-release) content. Shade rewrites the class
+                              files and the resources it copies, but it does NOT rewrite the
+                              META-INF/versions/N/... copies, so a relocated multi-release library
+                              ends up with two inconsistent halves and fails at runtime
+                              (observed: sqlite-jdbc -> NoClassDefFoundError on NativeDB, which
+                              surfaces as UnsatisfiedLinkError on the server).
+
+                              Multi-release libraries, therefore left at their own coordinates:
+                                org.bouncycastle (versions 11/15/17/25)
+                                com.fasterxml.jackson (versions 11/17/21)
+                                org.mariadb (versions 11/15)
+                                org.postgresql (versions 11)
+                                org.sqlite (versions 9)
+                              Paper gives every plugin its own child-first classloader, so leaving
+                              these un-relocated does not make them clash with other plugins.
+
+                              The libraries below ship no multi-release content, so relocating them
+                              is safe and keeps them out of the shared namespace.
+                            -->
                             <relocations>
-                                <relocation>
-                                    <pattern>org.bouncycastle</pattern>
-                                    <shadedPattern>dev.lightlogin.libs.org.bouncycastle</shadedPattern>
-                                </relocation>
                                 <relocation>
                                     <pattern>com.zaxxer.hikari</pattern>
                                     <shadedPattern>dev.lightlogin.libs.com.zaxxer.hikari</shadedPattern>
-                                </relocation>
-                                <relocation>
-                                    <pattern>org.postgresql</pattern>
-                                    <shadedPattern>dev.lightlogin.libs.org.postgresql</shadedPattern>
-                                </relocation>
-                                <relocation>
-                                    <pattern>org.mariadb</pattern>
-                                    <shadedPattern>dev.lightlogin.libs.org.mariadb</shadedPattern>
-                                </relocation>
-                                <relocation>
-                                    <pattern>org.sqlite</pattern>
-                                    <shadedPattern>dev.lightlogin.libs.org.sqlite</shadedPattern>
                                 </relocation>
                                 <relocation>
                                     <pattern>org.eclipse.angus</pattern>
@@ -150,7 +177,19 @@
                                     <pattern>com.maxmind</pattern>
                                     <shadedPattern>dev.lightlogin.libs.com.maxmind</shadedPattern>
                                 </relocation>
+                                <relocation>
+                                    <pattern>org.slf4j</pattern>
+                                    <shadedPattern>dev.lightlogin.libs.org.slf4j</shadedPattern>
+                                </relocation>
                             </relocations>
+                            <transformers>
+                                <!--
+                                  Merge and rewrite META-INF/services/* so the service files agree
+                                  with the relocations above. Without this, later jars overwrite
+                                  earlier ones and every provider but one is lost.
+                                -->
+                                <transformer implementation="org.apache.maven.plugins.shade.resource.ServicesResourceTransformer"/>
+                            </transformers>
                         </configuration>
                     </execution>
                 </executions>

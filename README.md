@@ -22,7 +22,7 @@ Java 25 · Paper API 26.1 · 3 Maven modules · 125 unit/integration tests · Ar
 | Admin website | A full administration panel served from the JDK's built-in HTTP server (no extra dependency): dashboard, player list, per-player actions, IP bans, audit log. Loopback by default; refuses a public bind unless explicitly enabled. |
 | Moderator GUI | An inventory menu to browse players and reset passwords, ban/unban addresses and unregister accounts, with a confirmation step. |
 | Nations | Country blocking via an optional MaxMind GeoLite2 database; inert (never blocks) when absent. |
-| Tests | 125 tests, including the real HTTP panel over a socket, the real JDBC layer against SQLite, and an audit that every config key is read and every message key exists. |
+| Tests | 130 tests: 125 unit tests plus 5 that load the **shaded jar** itself and open a real SQLite connection — the check that catches packaging bugs no unit test can see. Includes the real HTTP panel over a socket, the real JDBC layer against SQLite, and an audit that every config key is read and every message key exists. |
 
 ## Requirements
 
@@ -50,16 +50,20 @@ Java 25 · Paper API 26.1 · 3 Maven modules · 125 unit/integration tests · Ar
 Builds run on JDK 27 with `--release 25`; the artifact targets Java 25 bytecode.
 
 ```bash
-mvn clean package                # full build, runs all 125 tests
+mvn clean verify                 # full build: 125 unit tests + 5 integration tests
+mvn clean package                # build + unit tests (stops before the jar integration tests)
 mvn -Pslim clean package         # smaller jar, excludes server drivers and GeoIP
 mvn -pl lightlogin-core test     # one module
 ```
 
 Output: `lightlogin-paper/target/lightlogin-paper-3.0.0.jar`
 
-The shaded jar is about **25 MB**, dominated by the SQLite native libraries (~12 MB, needed for
+Use `verify`, not `package`, for the complete suite: the integration tests inspect the shaded jar, so
+they run in the phase after packaging.
+
+The shaded jar is about **24 MB**, dominated by the SQLite native libraries (~12 MB, needed for
 portability) and BouncyCastle's Argon2 implementation (~5.5 MB). The `slim` profile drops the
-PostgreSQL/MariaDB drivers and the GeoIP reader, producing about **21 MB**. See
+PostgreSQL/MariaDB drivers and the GeoIP reader, producing about **20 MB**. See
 [docs/07-development.md](docs/07-development.md) for the full breakdown.
 
 ## Documentation

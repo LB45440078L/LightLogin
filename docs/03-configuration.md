@@ -28,7 +28,11 @@ Reserved for localisation of console output; `en`.
 | `pool-size` | `6` | SQLite is capped at 4 internally. |
 | `connection-timeout-millis` | `10000` | |
 
-The pool never fails fast: a briefly unreachable database does not prevent startup.
+The pool never fails fast: a briefly unreachable database does not prevent startup. A database that
+is *permanently* unreachable, or a driver that cannot load, fails startup immediately with a message
+naming the real cause (see
+[07-development.md § Startup database probe](07-development.md#startup-database-probe)). For SQLite,
+that first connection is also what creates the `lightlogin.db` file.
 
 ## `security`
 
