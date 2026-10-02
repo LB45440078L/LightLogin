@@ -34,7 +34,7 @@ Java 25 · Paper API 26.1 · 3 Maven modules · 125 unit/integration tests · Ar
 
 ## Install
 
-1. Build (see below) or take `lightlogin-paper/target/lightlogin-paper-2.0.0.jar`.
+1. Build (see below) or take `lightlogin-paper/target/lightlogin-paper-3.0.0.jar`.
 2. Drop it into your server's `plugins/` directory.
 3. Start the server once. LightLogin writes `config.yml`, `messages.yml`, `gui.yml` and a
    `lightlogin.key` master key into `plugins/LightLogin/`.
@@ -55,7 +55,7 @@ mvn -Pslim clean package         # smaller jar, excludes server drivers and GeoI
 mvn -pl lightlogin-core test     # one module
 ```
 
-Output: `lightlogin-paper/target/lightlogin-paper-2.0.0.jar`
+Output: `lightlogin-paper/target/lightlogin-paper-3.0.0.jar`
 
 The shaded jar is about **25 MB**, dominated by the SQLite native libraries (~12 MB, needed for
 portability) and BouncyCastle's Argon2 implementation (~5.5 MB). The `slim` profile drops the

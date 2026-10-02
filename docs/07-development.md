@@ -112,7 +112,7 @@ the build does not do it.
 # own classes must be Java 25 (class-file major 69)
 python3 - <<'PY'
 import zipfile, collections
-z = zipfile.ZipFile('lightlogin-paper/target/lightlogin-paper-2.0.0.jar')
+z = zipfile.ZipFile('lightlogin-paper/target/lightlogin-paper-3.0.0.jar')
 own = [n for n in z.namelist() if n.endswith('.class') and n.startswith('dev/lightlogin/')
        and not n.startswith('dev/lightlogin/libs/')]
 majors = collections.Counter(((z.read(n)[6]<<8)|z.read(n)[7]) for n in own)

@@ -31,7 +31,7 @@ jobs:
         run: |
           python3 - <<'PY'
           import collections, sys, zipfile
-          path = 'lightlogin-paper/target/lightlogin-paper-2.0.0.jar'
+          path = 'lightlogin-paper/target/lightlogin-paper-3.0.0.jar'
           z = zipfile.ZipFile(path)
           own = [n for n in z.namelist()
                  if n.endswith('.class') and n.startswith('dev/lightlogin/')
