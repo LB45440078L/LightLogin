@@ -4,9 +4,25 @@
 # =====================================================================================
 
 # Do not change: the plugin uses this to detect files written by an older schema.
-config-version: 2
+config-version: 3
 
 language: en
+
+# -------------------------------------------------------------------------------------
+# Runtime libraries
+#   The JDBC drivers and the GeoIP reader are NOT bundled in the plugin jar. They are resolved
+#   at startup from, in order:
+#     1. the server's own classpath (many servers already ship the SQLite/MySQL drivers)
+#     2. plugins/LightLogin/libs/  (place a jar there to install it offline)
+#     3. a download from the repositories below, verified against a pinned SHA-256
+#   Set auto-download: false to forbid network access and use only 1 and 2.
+# -------------------------------------------------------------------------------------
+libraries:
+  repositories:
+    - 'https://repo1.maven.org/maven2'
+  auto-download: true
+  connect-timeout-millis: 20000
+  read-timeout-millis: 120000
 
 # -------------------------------------------------------------------------------------
 # Database
@@ -180,6 +196,7 @@ login:
     - verify
     - email
     - resetpassword
+    - lightlogin
   command-delay-millis: 1000
   teleport:
     enabled: false

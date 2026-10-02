@@ -30,10 +30,20 @@ public final class AdminCommands extends CommandSupport {
 
     public void admin(CommandSender sender, String label, String[] args) {
         if (args.length == 0) {
-            send(sender, "admin.usage");
+            help(sender);
             return;
         }
-        switch (args[0].toLowerCase(java.util.Locale.ROOT)) {
+        String subcommand = args[0].toLowerCase(java.util.Locale.ROOT);
+        // `lightlogin` is reachable while unauthenticated so that an operator is never told the
+        // command is missing, but an unauthenticated caller may only look at the index. Every
+        // mutating subcommand (ban, unregister, reset, reload) requires a completed login: without
+        // this, anyone able to connect under an operator's name in offline mode could run admin
+        // actions before proving they own the account, which defeats the point of the gate.
+        if (requiresAuthentication(sender) && !isReadOnly(subcommand)) {
+            send(sender, "admin.authenticate-first");
+            return;
+        }
+        switch (subcommand) {
             case "reload" -> reload(sender);
             case "gui" -> openGui(sender);
             case "stats" -> stats(sender);
@@ -42,8 +52,59 @@ public final class AdminCommands extends CommandSupport {
             case "reset" -> reset(sender, args);
             case "unregister" -> unregister(sender, args);
             case "info" -> info(sender);
+            case "help", "?" -> help(sender);
             default -> send(sender, "admin.usage");
         }
+    }
+
+    /** Whether the sender is a player who has not yet authenticated. */
+    private boolean requiresAuthentication(CommandSender sender) {
+        return sender instanceof Player player
+                && ctx.authGate().isPending(player.getUniqueId());
+    }
+
+    /** The subcommands that reveal nothing secret and change nothing. */
+    private static boolean isReadOnly(String subcommand) {
+        return switch (subcommand) {
+            case "help", "?", "info", "stats" -> true;
+            default -> false;
+        };
+    }
+
+    /**
+     * The command index.
+     *
+     * <p>Shown only to a sender who can actually use something in it, so a player who has not
+     * authenticated is never told what the administrative surface looks like.</p>
+     */
+    private void help(CommandSender sender) {
+        if (!hasAnyPermission(sender, "lightlogin.admin", "lightlogin.moderator")) {
+            send(sender, "no-permission", of("PERMISSION", "lightlogin.moderator"));
+            return;
+        }
+        send(sender, "admin.help");
+    }
+
+    /** Version, storage and hashing summary, so an operator can confirm the running configuration. */
+    private void info(CommandSender sender) {
+        if (!hasAnyPermission(sender, "lightlogin.admin", "lightlogin.moderator")) {
+            send(sender, "no-permission", of("PERMISSION", "lightlogin.moderator"));
+            return;
+        }
+        var config = ctx.config();
+        String pepper = System.getenv(config.security().pepperEnvVar()) == null ? "not set" : "enabled";
+        String panel = config.web().enabled()
+                ? config.web().bindAddress() + ':' + config.web().port()
+                : "disabled";
+        send(sender, "admin.info", java.util.Map.of(
+                "VERSION", ctx.plugin().getPluginMeta().getVersion(),
+                "SCHEMA", String.valueOf(config.configVersion()),
+                "DATABASE", config.database().type().name(),
+                "ARGON2", config.security().argon().memoryKib() + " KiB, t="
+                        + config.security().argon().iterations() + ", p="
+                        + config.security().argon().parallelism(),
+                "PEPPER", pepper,
+                "PANEL", panel));
     }
 
     private void reload(CommandSender sender) {
@@ -169,20 +230,15 @@ public final class AdminCommands extends CommandSupport {
             send(sender, "no-permission", of("PERMISSION", "lightlogin.admin"));
             return;
         }
-        String actor = sender instanceof Player p ? p.getName() : "console";
-        async(() -> ctx.accounts().findByUsername(name), account -> {
-            if (account.isEmpty()) {
-                send(sender, "admin.player-not-found");
-                return;
-            }
-            ctx.authService().unregister(account.get().uuid(), account.get().username(), actor, "");
-            ctx.sessionService().invalidateAll(account.get().uuid());
-            send(sender, "unregister.success");
-        });
-    }
-
-    private void info(CommandSender sender) {
-        send(sender, "admin.usage");
+                String actor = sender instanceof Player p ? p.getName() : "console";
+        async(() -> {
+            var found = ctx.accounts().findByUsername(name);
+            found.ifPresent(account -> {
+                ctx.authService().unregister(account.uuid(), account.username(), actor, "");
+                ctx.sessionService().invalidateAll(account.uuid());
+            });
+            return found;
+        }, account -> send(sender, account.isEmpty() ? "admin.player-not-found" : "unregister.success"));
     }
 
     // -------------------------------------------------------- /temppassword

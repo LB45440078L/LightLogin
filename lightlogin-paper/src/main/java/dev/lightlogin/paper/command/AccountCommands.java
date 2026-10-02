@@ -48,26 +48,22 @@ public final class AccountCommands extends CommandSupport {
         String uuid = player.getUniqueId().toString();
         String name = player.getName();
         String ip = ipOf(player);
-        async(() -> {
-            char[] oldCopy = ConstantTime.copy(oldPassword);
-            char[] newCopy = ConstantTime.copy(newPassword);
-            try {
-                return ctx.authService().changePassword(uuid, name, oldCopy, newCopy, ip);
-            } finally {
-                ConstantTime.wipe(oldCopy);
-                ConstantTime.wipe(newCopy);
+        // Both passwords are claimed on this thread before the work is submitted.
+        dev.lightlogin.core.crypto.OwnedPassword ownedNew =
+                dev.lightlogin.core.crypto.OwnedPassword.claim(newPassword);
+        asyncAuth(oldPassword, ownedOld -> ownedNew.use(ownedNewValue -> {
+            AuthResult result = ctx.authService().changePassword(uuid, name, ownedOld, ownedNewValue, ip);
+            if (result instanceof AuthResult.Success) {
+                // Database work stays on the worker thread, never the server thread.
+                ctx.sessionService().invalidateAll(uuid);
             }
-        }, result -> handleChangeResult(player, result));
-        ConstantTime.wipe(oldPassword);
-        ConstantTime.wipe(newPassword);
+            return result;
+        }), result -> handleChangeResult(player, result));
     }
 
     private void handleChangeResult(Player player, AuthResult result) {
         switch (result) {
-            case AuthResult.Success ignored -> {
-                send(player, "password.change-success");
-                ctx.sessionService().invalidateAll(player.getUniqueId().toString());
-            }
+            case AuthResult.Success ignored -> send(player, "password.change-success");
             case AuthResult.WrongPassword ignored -> send(player, "password.change-wrong-old");
             case AuthResult.NotRegistered ignored -> send(player, "login.not-registered");
             case AuthResult.PolicyRejected rejected -> {
@@ -91,16 +87,24 @@ public final class AccountCommands extends CommandSupport {
                 send(sender, "unlogin.not-online");
                 return;
             }
-            ctx.sessionService().invalidateAll(target.getUniqueId().toString());
-            send(sender, "unlogin.player-success", of("PLAYER", target.getName()));
+            String targetUuid = target.getUniqueId().toString();
+            String targetName = target.getName();
+            // The session store is a database: invalidate it off the server thread.
+            async(() -> {
+                ctx.sessionService().invalidateAll(targetUuid);
+                return null;
+            }, ignored -> send(sender, "unlogin.player-success", of("PLAYER", targetName)));
             return;
         }
         Player player = requirePlayer(sender).orElse(null);
         if (player == null) {
             return;
         }
-        ctx.sessionService().invalidateAll(player.getUniqueId().toString());
-        send(player, "unlogin.success");
+        String uuid = player.getUniqueId().toString();
+        async(() -> {
+            ctx.sessionService().invalidateAll(uuid);
+            return null;
+        }, ignored -> send(player, "unlogin.success"));
     }
 
     // ---------------------------------------------------------------- /email
@@ -176,14 +180,20 @@ public final class AccountCommands extends CommandSupport {
         String targetName = args[0];
         String actor = sender instanceof Player p ? p.getName() : "console";
         String ip = sender instanceof Player p ? ipOf(p) : "";
-        async(() -> ctx.accounts().findByUsername(targetName), account -> {
+        // All storage work happens on the worker thread; only messaging runs on the server thread.
+        async(() -> {
+            Optional<Account> found = ctx.accounts().findByUsername(targetName);
+            found.ifPresent(target -> {
+                ctx.authService().unregister(target.uuid(), target.username(), actor, ip);
+                ctx.sessionService().invalidateAll(target.uuid());
+            });
+            return found;
+        }, account -> {
             if (account.isEmpty()) {
                 send(sender, "unregister.not-found");
                 return;
             }
             Account target = account.get();
-            ctx.authService().unregister(target.uuid(), target.username(), actor, ip);
-            ctx.sessionService().invalidateAll(target.uuid());
             send(sender, "unregister.success");
             Player online = Bukkit.getPlayer(java.util.UUID.fromString(target.uuid()));
             if (online != null) {

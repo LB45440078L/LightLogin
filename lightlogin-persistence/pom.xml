@@ -24,20 +24,23 @@
             <artifactId>HikariCP</artifactId>
         </dependency>
         <dependency>
-            <groupId>org.xerial</groupId>
-            <artifactId>sqlite-jdbc</artifactId>
-        </dependency>
-        <dependency>
-            <groupId>org.postgresql</groupId>
-            <artifactId>postgresql</artifactId>
-        </dependency>
-        <dependency>
-            <groupId>org.mariadb.jdbc</groupId>
-            <artifactId>mariadb-java-client</artifactId>
-        </dependency>
-        <dependency>
             <groupId>org.jetbrains</groupId>
             <artifactId>annotations</artifactId>
+        </dependency>
+
+        <!--
+          The JDBC drivers are deliberately NOT compile dependencies, so they cannot leak into the
+          shaded plugin jar: DataSourceFactory loads the driver through a ClassLoader that the
+          paper module supplies (see LibraryManager), and the driver therefore only needs to exist
+          at runtime.
+
+          SQLite is kept at test scope so JdbcRepositoriesTest can run the real SQLite engine
+          against the real schema. Test scope is not transitive, so it does not reach the plugin jar.
+        -->
+        <dependency>
+            <groupId>org.xerial</groupId>
+            <artifactId>sqlite-jdbc</artifactId>
+            <scope>test</scope>
         </dependency>
 
         <dependency>

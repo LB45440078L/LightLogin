@@ -7,12 +7,55 @@ Values below the OWASP floor are **raised automatically** rather than rejected.
 
 ## `config-version`
 
-The schema version this file was written for. The plugin understands version `2`. A newer file
+The schema version this file was written for. The plugin understands version `3`. A newer file
 should be treated as written by a newer plugin.
 
 ## `language`
 
 Reserved for localisation of console output; `en`.
+
+## Runtime libraries
+
+The JDBC drivers and the GeoIP reader are deliberately **not** bundled in the plugin jar: they are
+several megabytes, they are only needed by some configurations, and many servers already ship a
+driver. Resolving them at runtime is what keeps the jar at ~1.7 MB.
+
+| Key | Default | Notes |
+|---|---|---|
+| `repositories` | `['https://repo1.maven.org/maven2']` | Maven repository base URLs, tried in order. A `file:` URL works too, so an internal mirror or a local directory can be used offline. |
+| `auto-download` | `true` | Whether the plugin may fetch a missing library. Set to `false` to forbid all network access. |
+| `connect-timeout-millis` | `20000` | HTTP connect timeout |
+| `read-timeout-millis` | `120000` | HTTP read timeout |
+
+Each library is looked for in this order:
+
+1. **The server's own classpath.** Detected by loading the library's probe class (for example
+   `org.sqlite.JDBC`). If the server already provides it, nothing is downloaded and no extra class
+   loader is created.
+2. **`plugins/LightLogin/libs/`.** Drop a jar there to install a library offline. The name must match
+   the expected artifact name, e.g. `sqlite-jdbc-3.53.4.0.jar`.
+3. **A download** from the configured repositories, written to a temporary file, verified against the
+   pinned SHA-256, and only then moved into place.
+
+Every path verifies the pinned digest — including a file already sitting in `libs/`. A jar that is
+truncated, tampered with, or from a compromised mirror is discarded, and one that is already on disk
+with a wrong digest is fetched again.
+
+If a required library cannot be obtained, startup fails with a message naming the library, the
+coordinates, and the three remedies. With `auto-download: false` and no local copy, that is the
+expected behaviour rather than a silent fallback.
+
+Which libraries are needed depends on the configuration:
+
+| Configuration | Libraries resolved |
+|---|---|
+| `database.type: SQLITE` | `org.xerial:sqlite-jdbc` |
+| `database.type: MARIADB` / `MYSQL` | `org.mariadb.jdbc:mariadb-java-client` + `org.slf4j:slf4j-api` |
+| `database.type: POSTGRESQL` | `org.postgresql:postgresql` + `org.slf4j:slf4j-api` |
+| `safety.country-blocking.geoip-database` set | `com.maxmind.geoip2:geoip2` + `com.maxmind.db:maxmind-db` + Jackson (4 jars) |
+
+Versions and digests are pinned in `Libraries` in the plugin source; nothing resolves a ranged
+version, so a startup does not depend on what a repository happens to serve that day.
 
 ## `database`
 

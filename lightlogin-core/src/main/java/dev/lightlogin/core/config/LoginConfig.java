@@ -47,7 +47,10 @@ public record LoginConfig(
 
     public static LoginConfig defaults() {
         return new LoginConfig(120_000, true, true, true, 5,
-                List.of("login", "register", "verify", "email", "resetpassword"),
+                // `lightlogin` is allowed while unauthenticated so the administrative entry point
+                // is always reachable: its subcommands enforce their own permissions, and without
+                // it an operator who has not logged in sees the command as "missing".
+                List.of("login", "register", "verify", "email", "resetpassword", "lightlogin"),
                 1_000, false, "", "", true);
     }
 }

@@ -45,21 +45,25 @@
             <artifactId>annotations</artifactId>
         </dependency>
 
-        <!-- Shaded into the plugin jar -->
+        <!--
+          Shaded into the plugin jar. Everything here is small, has no multi-release content, and
+          is needed by the core (not merely by an optional feature):
+
+            com.zaxxer:hikari        connection pool          ~0.15 MB
+            org.eclipse.angus:angus-mail + jakarta.mail      ~0.7  MB
+            org.slf4j:slf4j-api + slf4j-nop                  ~0.05 MB
+            org.bouncycastle:bcprov  (Argon2 only, filtered) ~0.3  MB
+
+          The JDBC drivers and the GeoIP reader are NOT shaded. They are resolved at startup by
+          dev.lightlogin.paper.library.LibraryManager: from the server's own classpath if the
+          server already provides them, else from plugins/LightLogin/libs/, else downloaded and
+          checksum-verified. That is what keeps this jar small.
+        -->
         <dependency>
             <groupId>org.eclipse.angus</groupId>
             <artifactId>angus-mail</artifactId>
         </dependency>
         <dependency>
-            <groupId>com.maxmind.geoip2</groupId>
-            <artifactId>geoip2</artifactId>
-        </dependency>
-        <dependency>
-            <!--
-              HikariCP needs slf4j at runtime and slf4j 2.x prints a warning when no provider is
-              found. Bundling the NOP provider (and relocating both) keeps the plugin
-              self-contained: no warning, and no shadowing of the server's own slf4j.
-            -->
             <groupId>org.slf4j</groupId>
             <artifactId>slf4j-nop</artifactId>
             <version>${slf4j.version}</version>
@@ -134,6 +138,306 @@
                                         <exclude>META-INF/versions/*/module-info.class</exclude>
                                     </excludes>
                                 </filter>
+                                <!--
+                                  BouncyCastle is filtered down to only the classes Argon2 reaches at
+                                  runtime, which takes it from ~5.5 MB to ~0.3 MB.
+
+                                  Regenerate with:
+                                    python3 scripts/generate-bouncycastle-filter.py
+
+                                  Do not hand-edit between the markers. The list is a runtime class
+                                  closure (verified by ShadedJarIT, which hashes and verifies a
+                                  password using only what the built jar contains); dropping a class
+                                  from it throws NoClassDefFoundError at the first hash.
+                                -->
+                                <filter>
+                                    <artifact>org.bouncycastle:bcprov-jdk18on</artifact>
+                                    <includes>
+                                        <!-- BEGIN GENERATED bouncycastle filter -->
+                                        <include>org/bouncycastle/asn1/ASN1BMPString.class</include>
+                                        <include>org/bouncycastle/asn1/ASN1BMPString$1.class</include>
+                                        <include>org/bouncycastle/asn1/ASN1BitString.class</include>
+                                        <include>org/bouncycastle/asn1/ASN1BitString$1.class</include>
+                                        <include>org/bouncycastle/asn1/ASN1BitString$ContentsOutputStream.class</include>
+                                        <include>org/bouncycastle/asn1/ASN1BitStringParser.class</include>
+                                        <include>org/bouncycastle/asn1/ASN1Boolean.class</include>
+                                        <include>org/bouncycastle/asn1/ASN1Boolean$1.class</include>
+                                        <include>org/bouncycastle/asn1/ASN1Choice.class</include>
+                                        <include>org/bouncycastle/asn1/ASN1Encodable.class</include>
+                                        <include>org/bouncycastle/asn1/ASN1EncodableVector.class</include>
+                                        <include>org/bouncycastle/asn1/ASN1Enumerated.class</include>
+                                        <include>org/bouncycastle/asn1/ASN1Enumerated$1.class</include>
+                                        <include>org/bouncycastle/asn1/ASN1Exception.class</include>
+                                        <include>org/bouncycastle/asn1/ASN1External.class</include>
+                                        <include>org/bouncycastle/asn1/ASN1External$1.class</include>
+                                        <include>org/bouncycastle/asn1/ASN1ExternalParser.class</include>
+                                        <include>org/bouncycastle/asn1/ASN1GeneralString.class</include>
+                                        <include>org/bouncycastle/asn1/ASN1GeneralString$1.class</include>
+                                        <include>org/bouncycastle/asn1/ASN1GeneralizedTime.class</include>
+                                        <include>org/bouncycastle/asn1/ASN1GeneralizedTime$1.class</include>
+                                        <include>org/bouncycastle/asn1/ASN1GraphicString.class</include>
+                                        <include>org/bouncycastle/asn1/ASN1GraphicString$1.class</include>
+                                        <include>org/bouncycastle/asn1/ASN1IA5String.class</include>
+                                        <include>org/bouncycastle/asn1/ASN1IA5String$1.class</include>
+                                        <include>org/bouncycastle/asn1/ASN1InputStream.class</include>
+                                        <include>org/bouncycastle/asn1/ASN1Integer.class</include>
+                                        <include>org/bouncycastle/asn1/ASN1Integer$1.class</include>
+                                        <include>org/bouncycastle/asn1/ASN1Null.class</include>
+                                        <include>org/bouncycastle/asn1/ASN1Null$1.class</include>
+                                        <include>org/bouncycastle/asn1/ASN1NumericString.class</include>
+                                        <include>org/bouncycastle/asn1/ASN1NumericString$1.class</include>
+                                        <include>org/bouncycastle/asn1/ASN1Object.class</include>
+                                        <include>org/bouncycastle/asn1/ASN1ObjectDescriptor.class</include>
+                                        <include>org/bouncycastle/asn1/ASN1ObjectDescriptor$1.class</include>
+                                        <include>org/bouncycastle/asn1/ASN1ObjectIdentifier.class</include>
+                                        <include>org/bouncycastle/asn1/ASN1ObjectIdentifier$1.class</include>
+                                        <include>org/bouncycastle/asn1/ASN1ObjectIdentifier$OidHandle.class</include>
+                                        <include>org/bouncycastle/asn1/ASN1OctetString.class</include>
+                                        <include>org/bouncycastle/asn1/ASN1OctetString$1.class</include>
+                                        <include>org/bouncycastle/asn1/ASN1OctetStringParser.class</include>
+                                        <include>org/bouncycastle/asn1/ASN1OutputStream.class</include>
+                                        <include>org/bouncycastle/asn1/ASN1ParsingException.class</include>
+                                        <include>org/bouncycastle/asn1/ASN1Primitive.class</include>
+                                        <include>org/bouncycastle/asn1/ASN1PrintableString.class</include>
+                                        <include>org/bouncycastle/asn1/ASN1PrintableString$1.class</include>
+                                        <include>org/bouncycastle/asn1/ASN1RelativeOID.class</include>
+                                        <include>org/bouncycastle/asn1/ASN1RelativeOID$1.class</include>
+                                        <include>org/bouncycastle/asn1/ASN1Sequence.class</include>
+                                        <include>org/bouncycastle/asn1/ASN1Sequence$1.class</include>
+                                        <include>org/bouncycastle/asn1/ASN1Sequence$2.class</include>
+                                        <include>org/bouncycastle/asn1/ASN1Sequence$3.class</include>
+                                        <include>org/bouncycastle/asn1/ASN1SequenceParser.class</include>
+                                        <include>org/bouncycastle/asn1/ASN1Set.class</include>
+                                        <include>org/bouncycastle/asn1/ASN1Set$1.class</include>
+                                        <include>org/bouncycastle/asn1/ASN1Set$2.class</include>
+                                        <include>org/bouncycastle/asn1/ASN1Set$3.class</include>
+                                        <include>org/bouncycastle/asn1/ASN1Set$SortedElement.class</include>
+                                        <include>org/bouncycastle/asn1/ASN1Set$SortedElement$1.class</include>
+                                        <include>org/bouncycastle/asn1/ASN1SetParser.class</include>
+                                        <include>org/bouncycastle/asn1/ASN1StreamParser.class</include>
+                                        <include>org/bouncycastle/asn1/ASN1String.class</include>
+                                        <include>org/bouncycastle/asn1/ASN1T61String.class</include>
+                                        <include>org/bouncycastle/asn1/ASN1T61String$1.class</include>
+                                        <include>org/bouncycastle/asn1/ASN1Tag.class</include>
+                                        <include>org/bouncycastle/asn1/ASN1TaggedObject.class</include>
+                                        <include>org/bouncycastle/asn1/ASN1TaggedObjectParser.class</include>
+                                        <include>org/bouncycastle/asn1/ASN1TimeFormat.class</include>
+                                        <include>org/bouncycastle/asn1/ASN1Type.class</include>
+                                        <include>org/bouncycastle/asn1/ASN1UTCTime.class</include>
+                                        <include>org/bouncycastle/asn1/ASN1UTCTime$1.class</include>
+                                        <include>org/bouncycastle/asn1/ASN1UTF8String.class</include>
+                                        <include>org/bouncycastle/asn1/ASN1UTF8String$1.class</include>
+                                        <include>org/bouncycastle/asn1/ASN1UniversalString.class</include>
+                                        <include>org/bouncycastle/asn1/ASN1UniversalString$1.class</include>
+                                        <include>org/bouncycastle/asn1/ASN1UniversalType.class</include>
+                                        <include>org/bouncycastle/asn1/ASN1UniversalTypes.class</include>
+                                        <include>org/bouncycastle/asn1/ASN1Util.class</include>
+                                        <include>org/bouncycastle/asn1/ASN1VideotexString.class</include>
+                                        <include>org/bouncycastle/asn1/ASN1VideotexString$1.class</include>
+                                        <include>org/bouncycastle/asn1/ASN1VisibleString.class</include>
+                                        <include>org/bouncycastle/asn1/ASN1VisibleString$1.class</include>
+                                        <include>org/bouncycastle/asn1/BERBitString.class</include>
+                                        <include>org/bouncycastle/asn1/BERBitStringParser.class</include>
+                                        <include>org/bouncycastle/asn1/BERFactory.class</include>
+                                        <include>org/bouncycastle/asn1/BEROctetString.class</include>
+                                        <include>org/bouncycastle/asn1/BEROctetStringParser.class</include>
+                                        <include>org/bouncycastle/asn1/BERSequence.class</include>
+                                        <include>org/bouncycastle/asn1/BERSequenceParser.class</include>
+                                        <include>org/bouncycastle/asn1/BERSet.class</include>
+                                        <include>org/bouncycastle/asn1/BERSetParser.class</include>
+                                        <include>org/bouncycastle/asn1/BERTaggedObject.class</include>
+                                        <include>org/bouncycastle/asn1/BERTaggedObjectParser.class</include>
+                                        <include>org/bouncycastle/asn1/BERTags.class</include>
+                                        <include>org/bouncycastle/asn1/ConstructedBitStream.class</include>
+                                        <include>org/bouncycastle/asn1/ConstructedOctetStream.class</include>
+                                        <include>org/bouncycastle/asn1/DERBMPString.class</include>
+                                        <include>org/bouncycastle/asn1/DERBitString.class</include>
+                                        <include>org/bouncycastle/asn1/DEREncodingException.class</include>
+                                        <include>org/bouncycastle/asn1/DERExternal.class</include>
+                                        <include>org/bouncycastle/asn1/DERExternalParser.class</include>
+                                        <include>org/bouncycastle/asn1/DERFactory.class</include>
+                                        <include>org/bouncycastle/asn1/DERGeneralString.class</include>
+                                        <include>org/bouncycastle/asn1/DERGeneralizedTime.class</include>
+                                        <include>org/bouncycastle/asn1/DERGraphicString.class</include>
+                                        <include>org/bouncycastle/asn1/DERIA5String.class</include>
+                                        <include>org/bouncycastle/asn1/DERNull.class</include>
+                                        <include>org/bouncycastle/asn1/DERNumericString.class</include>
+                                        <include>org/bouncycastle/asn1/DEROctetString.class</include>
+                                        <include>org/bouncycastle/asn1/DEROctetStringParser.class</include>
+                                        <include>org/bouncycastle/asn1/DEROutputStream.class</include>
+                                        <include>org/bouncycastle/asn1/DERPrintableString.class</include>
+                                        <include>org/bouncycastle/asn1/DERSequence.class</include>
+                                        <include>org/bouncycastle/asn1/DERSet.class</include>
+                                        <include>org/bouncycastle/asn1/DERT61String.class</include>
+                                        <include>org/bouncycastle/asn1/DERTaggedObject.class</include>
+                                        <include>org/bouncycastle/asn1/DERUTF8String.class</include>
+                                        <include>org/bouncycastle/asn1/DERUniversalString.class</include>
+                                        <include>org/bouncycastle/asn1/DERVideotexString.class</include>
+                                        <include>org/bouncycastle/asn1/DERVisibleString.class</include>
+                                        <include>org/bouncycastle/asn1/DLBitString.class</include>
+                                        <include>org/bouncycastle/asn1/DLBitStringParser.class</include>
+                                        <include>org/bouncycastle/asn1/DLExternal.class</include>
+                                        <include>org/bouncycastle/asn1/DLFactory.class</include>
+                                        <include>org/bouncycastle/asn1/DLOutputStream.class</include>
+                                        <include>org/bouncycastle/asn1/DLSequence.class</include>
+                                        <include>org/bouncycastle/asn1/DLSequenceParser.class</include>
+                                        <include>org/bouncycastle/asn1/DLSet.class</include>
+                                        <include>org/bouncycastle/asn1/DLSetParser.class</include>
+                                        <include>org/bouncycastle/asn1/DLTaggedObject.class</include>
+                                        <include>org/bouncycastle/asn1/DLTaggedObjectParser.class</include>
+                                        <include>org/bouncycastle/asn1/DefiniteLengthInputStream.class</include>
+                                        <include>org/bouncycastle/asn1/InMemoryRepresentable.class</include>
+                                        <include>org/bouncycastle/asn1/IndefiniteLengthInputStream.class</include>
+                                        <include>org/bouncycastle/asn1/LazyConstructionEnumeration.class</include>
+                                        <include>org/bouncycastle/asn1/LazyEncodedSequence.class</include>
+                                        <include>org/bouncycastle/asn1/LimitedInputStream.class</include>
+                                        <include>org/bouncycastle/asn1/LocaleUtil.class</include>
+                                        <include>org/bouncycastle/asn1/StreamUtil.class</include>
+                                        <include>org/bouncycastle/asn1/x9/X9Curve.class</include>
+                                        <include>org/bouncycastle/asn1/x9/X9ECParameters.class</include>
+                                        <include>org/bouncycastle/asn1/x9/X9ECPoint.class</include>
+                                        <include>org/bouncycastle/asn1/x9/X9FieldElement.class</include>
+                                        <include>org/bouncycastle/asn1/x9/X9FieldID.class</include>
+                                        <include>org/bouncycastle/asn1/x9/X9IntegerConverter.class</include>
+                                        <include>org/bouncycastle/asn1/x9/X9ObjectIdentifiers.class</include>
+                                        <include>org/bouncycastle/crypto/CharToByteConverter.class</include>
+                                        <include>org/bouncycastle/crypto/CipherParameters.class</include>
+                                        <include>org/bouncycastle/crypto/CryptoServiceProperties.class</include>
+                                        <include>org/bouncycastle/crypto/CryptoServicePurpose.class</include>
+                                        <include>org/bouncycastle/crypto/CryptoServicesConstraints.class</include>
+                                        <include>org/bouncycastle/crypto/CryptoServicesPermission.class</include>
+                                        <include>org/bouncycastle/crypto/CryptoServicesRegistrar.class</include>
+                                        <include>org/bouncycastle/crypto/CryptoServicesRegistrar$1.class</include>
+                                        <include>org/bouncycastle/crypto/CryptoServicesRegistrar$2.class</include>
+                                        <include>org/bouncycastle/crypto/CryptoServicesRegistrar$3.class</include>
+                                        <include>org/bouncycastle/crypto/CryptoServicesRegistrar$Property.class</include>
+                                        <include>org/bouncycastle/crypto/CryptoServicesRegistrar$ThreadLocalSecureRandomProvider.class</include>
+                                        <include>org/bouncycastle/crypto/DataLengthException.class</include>
+                                        <include>org/bouncycastle/crypto/Digest.class</include>
+                                        <include>org/bouncycastle/crypto/ExtendedDigest.class</include>
+                                        <include>org/bouncycastle/crypto/OutputLengthException.class</include>
+                                        <include>org/bouncycastle/crypto/PBEParametersGenerator.class</include>
+                                        <include>org/bouncycastle/crypto/PasswordConverter.class</include>
+                                        <include>org/bouncycastle/crypto/PasswordConverter$1.class</include>
+                                        <include>org/bouncycastle/crypto/PasswordConverter$2.class</include>
+                                        <include>org/bouncycastle/crypto/PasswordConverter$3.class</include>
+                                        <include>org/bouncycastle/crypto/RuntimeCryptoException.class</include>
+                                        <include>org/bouncycastle/crypto/SecureRandomProvider.class</include>
+                                        <include>org/bouncycastle/crypto/digests/Blake2bDigest.class</include>
+                                        <include>org/bouncycastle/crypto/digests/Utils.class</include>
+                                        <include>org/bouncycastle/crypto/digests/Utils$DefaultProperties.class</include>
+                                        <include>org/bouncycastle/crypto/digests/Utils$DefaultPropertiesWithPRF.class</include>
+                                        <include>org/bouncycastle/crypto/generators/Argon2BytesGenerator.class</include>
+                                        <include>org/bouncycastle/crypto/generators/Argon2BytesGenerator$Block.class</include>
+                                        <include>org/bouncycastle/crypto/generators/Argon2BytesGenerator$BlockPool.class</include>
+                                        <include>org/bouncycastle/crypto/generators/Argon2BytesGenerator$FillBlock.class</include>
+                                        <include>org/bouncycastle/crypto/generators/Argon2BytesGenerator$FixedBlockPool.class</include>
+                                        <include>org/bouncycastle/crypto/generators/Argon2BytesGenerator$Position.class</include>
+                                        <include>org/bouncycastle/crypto/params/Argon2Parameters.class</include>
+                                        <include>org/bouncycastle/crypto/params/Argon2Parameters$1.class</include>
+                                        <include>org/bouncycastle/crypto/params/Argon2Parameters$Builder.class</include>
+                                        <include>org/bouncycastle/crypto/params/DHParameters.class</include>
+                                        <include>org/bouncycastle/crypto/params/DHValidationParameters.class</include>
+                                        <include>org/bouncycastle/crypto/params/DSAParameters.class</include>
+                                        <include>org/bouncycastle/crypto/params/DSAValidationParameters.class</include>
+                                        <include>org/bouncycastle/math/Primes.class</include>
+                                        <include>org/bouncycastle/math/Primes$1.class</include>
+                                        <include>org/bouncycastle/math/Primes$MROutput.class</include>
+                                        <include>org/bouncycastle/math/Primes$STOutput.class</include>
+                                        <include>org/bouncycastle/math/ec/AbstractECLookupTable.class</include>
+                                        <include>org/bouncycastle/math/ec/AbstractECMultiplier.class</include>
+                                        <include>org/bouncycastle/math/ec/ECAlgorithms.class</include>
+                                        <include>org/bouncycastle/math/ec/ECConstantTimeMultiplier.class</include>
+                                        <include>org/bouncycastle/math/ec/ECConstants.class</include>
+                                        <include>org/bouncycastle/math/ec/ECCurve.class</include>
+                                        <include>org/bouncycastle/math/ec/ECCurve$1.class</include>
+                                        <include>org/bouncycastle/math/ec/ECCurve$AbstractF2m.class</include>
+                                        <include>org/bouncycastle/math/ec/ECCurve$AbstractFp.class</include>
+                                        <include>org/bouncycastle/math/ec/ECCurve$Config.class</include>
+                                        <include>org/bouncycastle/math/ec/ECCurve$F2m.class</include>
+                                        <include>org/bouncycastle/math/ec/ECCurve$F2m$1.class</include>
+                                        <include>org/bouncycastle/math/ec/ECCurve$Fp.class</include>
+                                        <include>org/bouncycastle/math/ec/ECFieldElement.class</include>
+                                        <include>org/bouncycastle/math/ec/ECFieldElement$AbstractF2m.class</include>
+                                        <include>org/bouncycastle/math/ec/ECFieldElement$AbstractFp.class</include>
+                                        <include>org/bouncycastle/math/ec/ECFieldElement$F2m.class</include>
+                                        <include>org/bouncycastle/math/ec/ECFieldElement$Fp.class</include>
+                                        <include>org/bouncycastle/math/ec/ECLookupTable.class</include>
+                                        <include>org/bouncycastle/math/ec/ECMultiplier.class</include>
+                                        <include>org/bouncycastle/math/ec/ECPoint.class</include>
+                                        <include>org/bouncycastle/math/ec/ECPoint$1.class</include>
+                                        <include>org/bouncycastle/math/ec/ECPoint$AbstractF2m.class</include>
+                                        <include>org/bouncycastle/math/ec/ECPoint$AbstractFp.class</include>
+                                        <include>org/bouncycastle/math/ec/ECPoint$F2m.class</include>
+                                        <include>org/bouncycastle/math/ec/ECPoint$Fp.class</include>
+                                        <include>org/bouncycastle/math/ec/ECPointMap.class</include>
+                                        <include>org/bouncycastle/math/ec/FixedPointCombMultiplier.class</include>
+                                        <include>org/bouncycastle/math/ec/FixedPointPreCompInfo.class</include>
+                                        <include>org/bouncycastle/math/ec/FixedPointUtil.class</include>
+                                        <include>org/bouncycastle/math/ec/FixedPointUtil$1.class</include>
+                                        <include>org/bouncycastle/math/ec/GLVMultiplier.class</include>
+                                        <include>org/bouncycastle/math/ec/LongArray.class</include>
+                                        <include>org/bouncycastle/math/ec/PreCompCallback.class</include>
+                                        <include>org/bouncycastle/math/ec/PreCompInfo.class</include>
+                                        <include>org/bouncycastle/math/ec/SimpleBigDecimal.class</include>
+                                        <include>org/bouncycastle/math/ec/Tnaf.class</include>
+                                        <include>org/bouncycastle/math/ec/ValidityPrecompInfo.class</include>
+                                        <include>org/bouncycastle/math/ec/WNafL2RMultiplier.class</include>
+                                        <include>org/bouncycastle/math/ec/WNafPreCompInfo.class</include>
+                                        <include>org/bouncycastle/math/ec/WNafUtil.class</include>
+                                        <include>org/bouncycastle/math/ec/WNafUtil$1.class</include>
+                                        <include>org/bouncycastle/math/ec/WNafUtil$2.class</include>
+                                        <include>org/bouncycastle/math/ec/WNafUtil$3.class</include>
+                                        <include>org/bouncycastle/math/ec/WTauNafMultiplier.class</include>
+                                        <include>org/bouncycastle/math/ec/WTauNafMultiplier$1.class</include>
+                                        <include>org/bouncycastle/math/ec/WTauNafPreCompInfo.class</include>
+                                        <include>org/bouncycastle/math/ec/ZTauElement.class</include>
+                                        <include>org/bouncycastle/math/ec/endo/ECEndomorphism.class</include>
+                                        <include>org/bouncycastle/math/ec/endo/EndoPreCompInfo.class</include>
+                                        <include>org/bouncycastle/math/ec/endo/EndoUtil.class</include>
+                                        <include>org/bouncycastle/math/ec/endo/EndoUtil$1.class</include>
+                                        <include>org/bouncycastle/math/ec/endo/GLVEndomorphism.class</include>
+                                        <include>org/bouncycastle/math/ec/endo/ScalarSplitParameters.class</include>
+                                        <include>org/bouncycastle/math/field/ExtensionField.class</include>
+                                        <include>org/bouncycastle/math/field/FiniteField.class</include>
+                                        <include>org/bouncycastle/math/field/FiniteFields.class</include>
+                                        <include>org/bouncycastle/math/field/GF2Polynomial.class</include>
+                                        <include>org/bouncycastle/math/field/GenericPolynomialExtensionField.class</include>
+                                        <include>org/bouncycastle/math/field/Polynomial.class</include>
+                                        <include>org/bouncycastle/math/field/PolynomialExtensionField.class</include>
+                                        <include>org/bouncycastle/math/field/PrimeField.class</include>
+                                        <include>org/bouncycastle/math/raw/Mod.class</include>
+                                        <include>org/bouncycastle/math/raw/Nat.class</include>
+                                        <include>org/bouncycastle/util/Arrays.class</include>
+                                        <include>org/bouncycastle/util/Arrays$Iterator.class</include>
+                                        <include>org/bouncycastle/util/BigIntegers.class</include>
+                                        <include>org/bouncycastle/util/BigIntegers$Cache.class</include>
+                                        <include>org/bouncycastle/util/BigIntegers$MontgomeryConstants.class</include>
+                                        <include>org/bouncycastle/util/Encodable.class</include>
+                                        <include>org/bouncycastle/util/Exceptions.class</include>
+                                        <include>org/bouncycastle/util/Integers.class</include>
+                                        <include>org/bouncycastle/util/Iterable.class</include>
+                                        <include>org/bouncycastle/util/Longs.class</include>
+                                        <include>org/bouncycastle/util/Objects.class</include>
+                                        <include>org/bouncycastle/util/Pack.class</include>
+                                        <include>org/bouncycastle/util/Properties.class</include>
+                                        <include>org/bouncycastle/util/Properties$1.class</include>
+                                        <include>org/bouncycastle/util/Properties$2.class</include>
+                                        <include>org/bouncycastle/util/StringList.class</include>
+                                        <include>org/bouncycastle/util/Strings.class</include>
+                                        <include>org/bouncycastle/util/Strings$1.class</include>
+                                        <include>org/bouncycastle/util/Strings$StringListImpl.class</include>
+                                        <include>org/bouncycastle/util/encoders/DecoderException.class</include>
+                                        <include>org/bouncycastle/util/encoders/Encoder.class</include>
+                                        <include>org/bouncycastle/util/encoders/EncoderException.class</include>
+                                        <include>org/bouncycastle/util/encoders/Hex.class</include>
+                                        <include>org/bouncycastle/util/encoders/HexEncoder.class</include>
+                                        <include>org/bouncycastle/util/encoders/UTF8.class</include>
+                                        <include>org/bouncycastle/util/io/StreamOverflowException.class</include>
+                                        <include>org/bouncycastle/util/io/Streams.class</include>
+<!-- END GENERATED bouncycastle filter -->
+                                    </includes>
+                                </filter>
                             </filters>
                             <!--
                               Relocation rule: never relocate a library that ships
@@ -144,17 +448,11 @@
                               (observed: sqlite-jdbc -> NoClassDefFoundError on NativeDB, which
                               surfaces as UnsatisfiedLinkError on the server).
 
-                              Multi-release libraries, therefore left at their own coordinates:
-                                org.bouncycastle (versions 11/15/17/25)
-                                com.fasterxml.jackson (versions 11/17/21)
-                                org.mariadb (versions 11/15)
-                                org.postgresql (versions 11)
-                                org.sqlite (versions 9)
-                              Paper gives every plugin its own child-first classloader, so leaving
-                              these un-relocated does not make them clash with other plugins.
-
                               The libraries below ship no multi-release content, so relocating them
-                              is safe and keeps them out of the shared namespace.
+                              is safe and keeps them out of the shared namespace. BouncyCastle is
+                              multi-release and is therefore left at its own coordinates (Paper
+                              gives every plugin its own child-first classloader, so that cannot
+                              clash with another plugin's copy).
                             -->
                             <relocations>
                                 <relocation>
@@ -172,10 +470,6 @@
                                 <relocation>
                                     <pattern>jakarta.activation</pattern>
                                     <shadedPattern>dev.lightlogin.libs.jakarta.activation</shadedPattern>
-                                </relocation>
-                                <relocation>
-                                    <pattern>com.maxmind</pattern>
-                                    <shadedPattern>dev.lightlogin.libs.com.maxmind</shadedPattern>
                                 </relocation>
                                 <relocation>
                                     <pattern>org.slf4j</pattern>
@@ -196,44 +490,4 @@
             </plugin>
         </plugins>
     </build>
-
-    <profiles>
-        <!--
-          Opt-in slim build: excludes the server-database drivers and the GeoIP reader from the
-          shaded jar, producing a much smaller plugin for SQLite-only servers. Enable with
-          `mvn -Pslim clean package`. Operators using this profile must place the driver they need
-          in `plugins/LightLogin/libs/` (documented in docs/07-development.md).
-        -->
-        <profile>
-            <id>slim</id>
-            <build>
-                <plugins>
-                    <plugin>
-                        <groupId>org.apache.maven.plugins</groupId>
-                        <artifactId>maven-shade-plugin</artifactId>
-                        <executions>
-                            <execution>
-                                <id>default-shade</id>
-                                <phase>package</phase>
-                                <goals>
-                                    <goal>shade</goal>
-                                </goals>
-                                <configuration>
-                                    <artifactSet>
-                                        <excludes>
-                                            <exclude>org.postgresql:postgresql</exclude>
-                                            <exclude>org.mariadb.jdbc:mariadb-java-client</exclude>
-                                            <exclude>com.maxmind.geoip2:geoip2</exclude>
-                                            <exclude>com.maxmind.db:maxmind-db</exclude>
-                                            <exclude>com.fasterxml.jackson.core:*</exclude>
-                                        </excludes>
-                                    </artifactSet>
-                                </configuration>
-                            </execution>
-                        </executions>
-                    </plugin>
-                </plugins>
-            </build>
-        </profile>
-    </profiles>
 </project>

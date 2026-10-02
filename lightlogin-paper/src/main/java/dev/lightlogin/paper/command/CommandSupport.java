@@ -55,6 +55,19 @@ public abstract class CommandSupport {
         return sender.hasPermission(permission);
     }
 
+    /** Whether the sender holds any of the permissions (console always does). */
+    protected boolean hasAnyPermission(CommandSender sender, String... permissions) {
+        if (!(sender instanceof Player)) {
+            return true;
+        }
+        for (String permission : permissions) {
+            if (permission != null && !permission.isBlank() && sender.hasPermission(permission)) {
+                return true;
+            }
+        }
+        return false;
+    }
+
     /**
      * Runs blocking work off the main thread and delivers the result on the main thread.
      *
@@ -80,6 +93,26 @@ public abstract class CommandSupport {
     /** Runs a side-effecting blocking task off the main thread. */
     protected void asyncRun(Runnable work) {
         ctx.async().run(work);
+    }
+
+    /**
+     * Runs password-using work off the main thread with the password's ownership handed over
+     * safely.
+     *
+     * <p>The password is claimed <em>here</em>, on the calling (main) thread, which copies it and
+     * wipes the caller's array before anything is submitted. Copying inside the submitted task
+     * would be too late: the caller's array is already cleared by then, and the task would hash an
+     * empty password — silently, and only some of the time.</p>
+     *
+     * @param password    the caller's array, consumed by this call
+     * @param work        runs on a virtual thread with the owned password
+     * @param onMainThread receives the result on the server thread
+     */
+    protected <T> void asyncAuth(char[] password, java.util.function.Function<char[], T> work,
+                                 Consumer<T> onMainThread) {
+        dev.lightlogin.core.crypto.OwnedPassword owned =
+                dev.lightlogin.core.crypto.OwnedPassword.claim(password);
+        async(() -> owned.use(work), onMainThread);
     }
 
     /** The player's connecting address as a string. */

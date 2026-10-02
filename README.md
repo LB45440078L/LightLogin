@@ -50,9 +50,8 @@ Java 25 · Paper API 26.1 · 3 Maven modules · 125 unit/integration tests · Ar
 Builds run on JDK 27 with `--release 25`; the artifact targets Java 25 bytecode.
 
 ```bash
-mvn clean verify                 # full build: 125 unit tests + 5 integration tests
+mvn clean verify                 # full build: 148 tests, including the shaded-jar integration tests
 mvn clean package                # build + unit tests (stops before the jar integration tests)
-mvn -Pslim clean package         # smaller jar, excludes server drivers and GeoIP
 mvn -pl lightlogin-core test     # one module
 ```
 
@@ -61,10 +60,12 @@ Output: `lightlogin-paper/target/lightlogin-paper-3.0.0.jar`
 Use `verify`, not `package`, for the complete suite: the integration tests inspect the shaded jar, so
 they run in the phase after packaging.
 
-The shaded jar is about **24 MB**, dominated by the SQLite native libraries (~12 MB, needed for
-portability) and BouncyCastle's Argon2 implementation (~5.5 MB). The `slim` profile drops the
-PostgreSQL/MariaDB drivers and the GeoIP reader, producing about **20 MB**. See
-[docs/07-development.md](docs/07-development.md) for the full breakdown.
+The shaded jar is about **1.7 MB**. Only four things are bundled: BouncyCastle trimmed to the classes
+Argon2 actually reaches (~0.3 MB), Angus Mail with Jakarta Mail (~0.7 MB), HikariCP (~0.15 MB) and
+slf4j. The JDBC drivers and the GeoIP reader are **not** bundled — they are resolved at startup from
+the server's own classpath, from `plugins/LightLogin/libs/`, or by a checksum-verified download (see
+[Runtime libraries](docs/03-configuration.md#runtime-libraries)). `ShadedJarIT` fails the build if the
+jar creeps back above 4 MB, so the size cannot regress unnoticed.
 
 ## Documentation
 

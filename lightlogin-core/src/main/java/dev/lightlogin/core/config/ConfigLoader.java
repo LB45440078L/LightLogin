@@ -38,7 +38,17 @@ public final class ConfigLoader {
                 loadVoidWorld(source, defaults.voidWorld()),
                 loadMail(source, defaults.mail()),
                 loadWeb(source, defaults.web()),
-                loadLogin(source, defaults.login()));
+                loadLogin(source, defaults.login()),
+                loadLibraries(source, defaults.libraries()));
+    }
+
+    private static LibrariesConfig loadLibraries(ConfigSource s, LibrariesConfig d) {
+        List<String> repositories = s.getStringList("libraries.repositories");
+        return new LibrariesConfig(
+                repositories.isEmpty() ? d.repositories() : repositories,
+                s.getBoolean("libraries.auto-download", d.autoDownload()),
+                s.getLong("libraries.connect-timeout-millis", d.connectTimeoutMillis()),
+                s.getLong("libraries.read-timeout-millis", d.readTimeoutMillis()));
     }
 
     private static DatabaseConfig loadDatabase(ConfigSource s, DatabaseConfig d) {

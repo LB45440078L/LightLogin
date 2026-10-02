@@ -21,10 +21,11 @@ public record LightLoginConfig(
         VoidWorldConfig voidWorld,
         MailConfig mail,
         WebConfig web,
-        LoginConfig login) {
+        LoginConfig login,
+        LibrariesConfig libraries) {
 
     /** The configuration schema version this build understands. */
-    public static final int CURRENT_VERSION = 2;
+    public static final int CURRENT_VERSION = 3;
 
     public LightLoginConfig {
         Objects.requireNonNull(database, "database");
@@ -36,6 +37,7 @@ public record LightLoginConfig(
         Objects.requireNonNull(mail, "mail");
         Objects.requireNonNull(web, "web");
         Objects.requireNonNull(login, "login");
+        Objects.requireNonNull(libraries, "libraries");
         language = language == null || language.isBlank() ? "en" : language;
     }
 
@@ -44,6 +46,6 @@ public record LightLoginConfig(
         return new LightLoginConfig(CURRENT_VERSION, "en", DatabaseConfig.sqliteDefault(),
                 SecurityConfig.defaults(), CaptchaConfig.defaults(), RateLimitConfig.defaults(),
                 SafetyConfig.defaults(), VoidWorldConfig.defaults(), MailConfig.defaults(),
-                WebConfig.defaults(), LoginConfig.defaults());
+                WebConfig.defaults(), LoginConfig.defaults(), LibrariesConfig.defaults());
     }
 }

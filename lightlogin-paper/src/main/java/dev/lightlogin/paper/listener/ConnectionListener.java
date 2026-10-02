@@ -111,8 +111,10 @@ public final class ConnectionListener implements Listener {
             return;
         }
         if (autoLogin) {
-            // A recent session means no password prompt at all.
-            ctx.auditService().record(player.getName(), AuditAction.LOGIN_SUCCESS, uuid, "session resumed", ip);
+            // A recent session means no password prompt at all. The audit row is a database write,
+            // so it must not run on the server thread.
+            ctx.async().run(() -> ctx.auditService().record(player.getName(), AuditAction.LOGIN_SUCCESS,
+                    uuid, "session resumed", ip));
             return;
         }
         AuthGate.Pending pending = ctx.authGate().begin(player, ip, true);

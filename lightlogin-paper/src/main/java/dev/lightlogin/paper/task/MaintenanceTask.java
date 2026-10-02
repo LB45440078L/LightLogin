@@ -108,17 +108,22 @@ public final class MaintenanceTask {
     }
 
     private void housekeeping(long now) {
-        try {
-            ctx.sessionService().purgeExpired();
-            ctx.ipBanService().purgeExpired();
-            int retentionDays = ctx.config().security().auditRetentionDays();
-            if (retentionDays > 0) {
-                long cutoff = now - retentionDays * 24L * 60 * 60 * 1000;
-                ctx.auditRepository().purgeOlderThan(cutoff);
+        int retentionDays = ctx.config().security().auditRetentionDays();
+        long cutoff = retentionDays > 0 ? now - retentionDays * 24L * 60 * 60 * 1000 : 0L;
+        // This runs on the server thread (a scheduler task), so every database call has to be
+        // pushed onto the async executor. Doing it inline froze the tick loop whenever the
+        // database was slow or locked.
+        ctx.async().run(() -> {
+            try {
+                ctx.sessionService().purgeExpired();
+                ctx.ipBanService().purgeExpired();
+                if (cutoff > 0) {
+                    ctx.auditRepository().purgeOlderThan(cutoff);
+                }
+            } catch (RuntimeException e) {
+                ctx.plugin().getLogger().warning("Housekeeping failed: " + e.getMessage());
             }
-        } catch (RuntimeException e) {
-            ctx.plugin().getLogger().warning("Housekeeping failed: " + e.getMessage());
-        }
+        });
     }
 
     /** Whether the task is running. */

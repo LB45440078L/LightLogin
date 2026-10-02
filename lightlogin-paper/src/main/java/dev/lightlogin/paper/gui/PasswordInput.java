@@ -32,19 +32,38 @@ import java.util.function.BiConsumer;
  * and no tab-completion leak. The command form still exists for players who prefer it, protected by
  * the log filter.</p>
  *
- * <p>The menu is identified by its {@link InventoryHolder}, not by a player-keyed map, so opening
- * one input while another is open cannot cross wires, and clicks are cancelled before anything is
- * decided.</p>
+ * <p>The callback is bound to the inventory's holder rather than to a separate player-keyed map, and
+ * is claimed <em>before</em> the inventory is closed. Two ordering hazards make that necessary, and
+ * both produced a silent no-op in earlier revisions:</p>
+ * <ul>
+ *   <li>{@code closeInventory()} fires {@link InventoryCloseEvent} synchronously, so a handler that
+ *       clears the pending callback on close would delete it before the confirm path could read
+ *       it. The password was then never delivered: registration appeared to accept the input but
+ *       stored nothing, and the same password was subsequently reported as "not registered" rather
+ *       than wrong.</li>
+ *   <li>The two-step register flow (enter, then confirm) opens a second inventory from inside the
+ *       first one's callback. A close event belonging to the first inventory can therefore arrive
+ *       after the second is already open; clearing "the player's callback" blindly would destroy
+ *       the confirmation step. Only the close of the inventory that is still registered as open for
+ *       that player is honoured.</li>
+ * </ul>
  */
 public final class PasswordInput implements Listener {
 
-    /** Marks an inventory as a password input. */
-    private static final class Holder implements InventoryHolder {
-        private Inventory inventory;
-        private final UUID owner;
+    /** Longest title the client will display usefully in an anvil. */
+    private static final int MAX_TITLE_LENGTH = 40;
 
-        Holder(UUID owner) {
+    /** Marks an inventory as a password input and carries its continuation. */
+    private static final class Holder implements InventoryHolder {
+
+        private final UUID owner;
+        private final BiConsumer<Player, String> onConfirm;
+        private Inventory inventory;
+        private boolean claimed;
+
+        Holder(UUID owner, BiConsumer<Player, String> onConfirm) {
             this.owner = owner;
+            this.onConfirm = onConfirm;
         }
 
         @Override
@@ -55,10 +74,19 @@ public final class PasswordInput implements Listener {
         void attach(Inventory inventory) {
             this.inventory = inventory;
         }
+
+        /** Claims the continuation; only the first claim wins. */
+        synchronized BiConsumer<Player, String> claim() {
+            if (claimed) {
+                return null;
+            }
+            claimed = true;
+            return onConfirm;
+        }
     }
 
     private final PluginContext ctx;
-    private final Map<UUID, BiConsumer<Player, String>> callbacks = new ConcurrentHashMap<>();
+    private final Map<UUID, Holder> open = new ConcurrentHashMap<>();
 
     public PasswordInput(PluginContext ctx) {
         this.ctx = ctx;
@@ -68,24 +96,34 @@ public final class PasswordInput implements Listener {
      * Opens the input for a player.
      *
      * @param player    the player
-     * @param prompt    the label shown in the field
-     * @param onConfirm receives the typed value; the player is still online and this runs on the
-     *                  main thread
+     * @param prompt    shown as the window title
+     * @param onConfirm receives the typed value on the main thread; the player is still online
      */
     public void open(Player player, Component prompt, BiConsumer<Player, String> onConfirm) {
-        Holder holder = new Holder(player.getUniqueId());
-        Inventory inventory = Bukkit.createInventory(holder, InventoryType.ANVIL, Component.text(" "));
+        Holder holder = new Holder(player.getUniqueId(), onConfirm);
+        Inventory inventory = Bukkit.createInventory(holder, InventoryType.ANVIL, title(prompt));
         holder.attach(inventory);
 
+        // The anvil's rename field is seeded from the first input item's display name, so that item
+        // is deliberately left unnamed: naming it would pre-fill the field with the prompt and the
+        // player's own password would be appended to it instead of replacing it.
         ItemStack paper = new ItemStack(Material.PAPER);
         ItemMeta meta = paper.getItemMeta();
-        meta.displayName(prompt);
-        meta.lore(java.util.List.of(Component.text("Type and click the result slot to confirm.")));
+        meta.lore(java.util.List.of(Component.text("Type it, then click the result slot to confirm.")));
         paper.setItemMeta(meta);
         inventory.setItem(0, paper);
 
-        callbacks.put(player.getUniqueId(), onConfirm);
+        open.put(player.getUniqueId(), holder);
         player.openInventory(inventory);
+    }
+
+    /** Truncates an over-long label so the client does not clip it mid-word. */
+    private static Component title(Component prompt) {
+        String text = PlainTextComponentSerializer.plainText().serialize(prompt);
+        if (text.length() <= MAX_TITLE_LENGTH) {
+            return prompt;
+        }
+        return Component.text(text.substring(0, MAX_TITLE_LENGTH - 1) + "…");
     }
 
     @EventHandler(priority = EventPriority.LOW, ignoreCancelled = false)
@@ -107,9 +145,16 @@ public final class PasswordInput implements Listener {
         }
         ItemStack result = event.getCurrentItem();
         String value = result == null ? "" : nameOf(result);
+
+        // Claim first, then close. closeInventory() raises InventoryCloseEvent synchronously, and
+        // closing before claiming is what made this silently do nothing.
+        BiConsumer<Player, String> callback = holder.claim();
+        if (callback == null) {
+            return;
+        }
+        open.remove(player.getUniqueId(), holder);
         player.closeInventory();
-        BiConsumer<Player, String> callback = callbacks.remove(player.getUniqueId());
-        if (callback != null && !value.isBlank()) {
+        if (!value.isBlank()) {
             callback.accept(player, value);
         }
     }
@@ -121,10 +166,15 @@ public final class PasswordInput implements Listener {
         }
     }
 
+    /**
+     * Drops the registration only when the closing inventory is the one currently open for this
+     * player. A close event for a superseded inventory (the first step of the two-step register
+     * flow) must not clear the continuation that replaced it.
+     */
     @EventHandler
     public void onClose(InventoryCloseEvent event) {
-        if (event.getView().getTopInventory().getHolder() instanceof Holder) {
-            callbacks.remove(event.getPlayer().getUniqueId());
+        if (event.getView().getTopInventory().getHolder() instanceof Holder holder) {
+            open.remove(event.getPlayer().getUniqueId(), holder);
         }
     }
 
@@ -139,6 +189,6 @@ public final class PasswordInput implements Listener {
 
     /** Whether a player currently has an input open. */
     public boolean isOpen(Player player) {
-        return callbacks.containsKey(player.getUniqueId());
+        return open.containsKey(player.getUniqueId());
     }
 }

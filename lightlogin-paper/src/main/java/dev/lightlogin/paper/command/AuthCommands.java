@@ -74,16 +74,10 @@ public final class AuthCommands extends CommandSupport {
         UUID uuid = player.getUniqueId();
         String name = player.getName();
         String ip = ipOf(player);
-        // The task owns its own copy so the caller can wipe the original immediately.
-        async(() -> {
-            char[] copy = ConstantTime.copy(password);
-            try {
-                return ctx.authService().login(uuid.toString(), name, copy, ip);
-            } finally {
-                ConstantTime.wipe(copy);
-            }
-        }, result -> handleLoginResult(player, result));
-        ConstantTime.wipe(password);
+        // asyncAuth claims the password on this thread before submitting, so the worker cannot
+        // observe the caller's array after it has been wiped.
+        asyncAuth(password, owned -> ctx.authService().login(uuid.toString(), name, owned, ip),
+                result -> handleLoginResult(player, result));
     }
 
     private void handleLoginResult(Player player, AuthResult result) {
@@ -96,7 +90,7 @@ public final class AuthCommands extends CommandSupport {
                 // Remember the session so a quick reconnect needs no password.
                 ctx.authGate().remember(player.getUniqueId(), ipOf(player),
                         System.currentTimeMillis() + ctx.config().security().sessionTtlMillis());
-                send(player, "login.success");
+                send(player, "login.success", of("PLAYER", player.getName()));
                 player.playSound(player.getLocation(), Sound.ENTITY_PLAYER_LEVELUP, 0.7f, 1.4f);
             }
             case AuthResult.WrongPassword wrong -> {
@@ -168,21 +162,14 @@ public final class AuthCommands extends CommandSupport {
         UUID uuid = player.getUniqueId();
         String name = player.getName();
         String ip = ipOf(player);
-        async(() -> {
-            char[] copy = ConstantTime.copy(password);
-            try {
-                return ctx.authService().register(uuid.toString(), name, copy, ip);
-            } finally {
-                ConstantTime.wipe(copy);
-            }
-        }, result -> handleRegisterResult(player, result));
-        ConstantTime.wipe(password);
+        asyncAuth(password, owned -> ctx.authService().register(uuid.toString(), name, owned, ip),
+                result -> handleRegisterResult(player, result));
     }
 
     private void handleRegisterResult(Player player, AuthResult result) {
         switch (result) {
             case AuthResult.Success ignored -> {
-                send(player, "register.success");
+                send(player, "register.success", of("PLAYER", player.getName()));
                 if (ctx.config().login().autoLoginAfterRegister()) {
                     AuthGate.Pending pending = ctx.authGate().complete(player.getUniqueId()).orElse(null);
                     if (pending != null) {
@@ -236,7 +223,10 @@ public final class AuthCommands extends CommandSupport {
             case CaptchaResult.TooManyAttempts ignored -> {
                 send(player, "captcha.failed");
                 if (ctx.config().captcha().punishOnFailure()) {
-                    ctx.authService().banForBruteForce(ipOf(player), player.getName());
+                    String ip = ipOf(player);
+                    String name = player.getName();
+                    // The ban and its audit row are database writes: keep them off the server thread.
+                    asyncRun(() -> ctx.authService().banForBruteForce(ip, name));
                     player.kick(SERIALIZER.deserialize("&cYou failed the CAPTCHA too many times."));
                 }
             }

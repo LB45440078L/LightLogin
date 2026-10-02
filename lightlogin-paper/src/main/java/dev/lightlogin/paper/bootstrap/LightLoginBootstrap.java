@@ -32,6 +32,8 @@ import dev.lightlogin.paper.command.AuthCommands;
 import dev.lightlogin.paper.command.CommandRegistry;
 import dev.lightlogin.paper.config.BukkitConfigSource;
 import dev.lightlogin.paper.geo.MaxMindCountryResolver;
+import dev.lightlogin.paper.library.Libraries;
+import dev.lightlogin.paper.library.LibraryManager;
 import dev.lightlogin.paper.gui.ModerationGui;
 import dev.lightlogin.paper.gui.PasswordInput;
 import dev.lightlogin.paper.listener.AuthRestrictionListener;
@@ -118,12 +120,20 @@ public final class LightLoginBootstrap {
         Argon2idPasswordHasher hasher = new Argon2idPasswordHasher(config.security().argon(), pepper);
         banner.ok("Argon2id hashing ready: " + config.security().argon() + '.');
 
+        banner.step("Resolving runtime libraries...");
+        LibraryManager libraries = new LibraryManager(
+                plugin.getDataFolder().toPath().resolve("libs"), config.libraries(), plugin.getLogger());
+
         banner.step("Connecting to the database...");
         DatabaseConfig database = config.database();
         String databasePassword = decrypt(secretBox, database.encryptedPassword());
         encryptInPlace(secretBox, "database.password", database.encryptedPassword());
+        // The driver is not bundled: make it available (server classpath, libs/, or a verified
+        // download) and hand the loader to persistence, which loads the driver through it.
+        ClassLoader driverLoader = libraries.loaderFor(
+                plugin.getClass().getClassLoader(), Libraries.forDatabase(database.type()));
         PersistenceBootstrap persistence = PersistenceBootstrap.start(database,
-                databasePassword, plugin.getDataFolder().toPath());
+                databasePassword, plugin.getDataFolder().toPath(), driverLoader);
         banner.ok("Database ready (" + database.type() + ").");
 
         banner.step("Building services...");
@@ -132,7 +142,7 @@ public final class LightLoginBootstrap {
                 .warning("Audit write failed for " + action + ": " + cause.getMessage()));
         redactor.registerSecret(security.bootToken().value());
 
-        countryResolver = MaxMindCountryResolver.open(plugin, config.safety().geoIpDatabase());
+        countryResolver = openCountryResolver(config, libraries);
 
         PasswordPolicy policy = new PasswordPolicy(config.security().passwordPolicy());
         IpBanService ipBanService = new IpBanService(persistence.bans(), config.safety(), countryResolver);
@@ -265,6 +275,28 @@ public final class LightLoginBootstrap {
 
     private LightLoginConfig loadConfig() {
         return ConfigLoader.load(new BukkitConfigSource(plugin.getConfig()));
+    }
+
+    /**
+     * Opens the GeoIP database when nation blocking is configured.
+     *
+     * <p>The reader is not bundled — it and its Jackson dependencies are several megabytes used by
+     * one optional feature — so it is resolved through the library manager. A failure to resolve it
+     * disables nation blocking instead of failing startup, which is the port's contract.</p>
+     */
+    private CountryResolver openCountryResolver(LightLoginConfig config, LibraryManager libraries) {
+        String database = config.safety().geoIpDatabase();
+        if (database == null || database.isBlank()) {
+            return CountryResolver.DISABLED;
+        }
+        try {
+            ClassLoader geoLoader = libraries.loaderFor(
+                    plugin.getClass().getClassLoader(), Libraries.GEOIP);
+            return MaxMindCountryResolver.open(plugin, database, geoLoader);
+        } catch (RuntimeException e) {
+            plugin.getLogger().warning("Nation blocking is disabled: " + e.getMessage());
+            return CountryResolver.DISABLED;
+        }
     }
 
     private void saveBundledResource(String name) {

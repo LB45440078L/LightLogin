@@ -1,122 +1,176 @@
 # LightLogin messages.
 # Colour codes use '&' (e.g. &a). Placeholders are written {LIKE_THIS}.
 # A message may be a single line or a list of lines.
+#
+# The glyphs used below (▬ ▸ · │ ✔) are standard Unicode and render correctly in the Minecraft
+# client. The plugin's console banner is kept plain ASCII on purpose, because server terminals
+# often cannot render box-drawing characters.
 
-prefix: '&6&lLightLogin &r&7» &f'
+prefix: '&8« &6&lLightLogin &8» &r'
 
 player-only: '&cThis command can only be used by a player.'
-no-permission: '&cYou are missing the permission &e{PERMISSION}&c.'
-unknown-command: '&cUnknown subcommand. Try &e/lightlogin help&c.'
-rate-limited: '&cYou are doing that too quickly. Please wait a moment.'
+no-permission: '&8│ &cYou are missing the permission &e{PERMISSION}&c.'
+unknown-command: '&8│ &cUnknown subcommand. Try &f/lightlogin&c.'
+rate-limited: '&8│ &cSlow down a moment, please.'
 
+# ----------------------------------------------------------------------------- authentication
 register:
   prompt:
-    - '&ePlease register to play.'
-    - '&7Use &f/register <password> <password>'
-    - '&7Or run &f/register&7 to type it in a private window.'
-  already-registered: '&cYou are already registered. Use &e/changepassword&c.'
-  mismatch: '&cThe two passwords do not match.'
-  success: '&aYou are now registered. Welcome!'
-  disabled: '&cRegistration is disabled on this server.'
-  limit-reached: '&cToo many accounts have been registered from your address.'
+    - '&6▬▬▬▬▬▬▬▬▬▬ &6&lACCOUNT &r&6▬▬▬▬▬▬▬▬▬▬'
+    - '&8│ &7You are not registered yet.'
+    - '&8│ &7Use &f/register <password> <password>'
+    - '&8│ &7or simply &f/register&7 to type it privately.'
+    - '&6▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬'
+  already-registered: '&8│ &cYou are already registered. Use &f/changepassword&c.'
+  mismatch: '&8│ &cThe two passwords do not match.'
+  success: '&a✔ &7Registration complete, &f{PLAYER}&7. Welcome!'
+  disabled: '&8│ &cRegistration is disabled on this server.'
+  limit-reached: '&8│ &cToo many accounts have been registered from your address.'
 
 login:
   prompt:
-    - '&ePlease log in to play.'
-    - '&7Use &f/login <password>'
-    - '&7Or run &f/login&7 to type it in a private window.'
-  success: '&aYou are now logged in.'
-  auto: '&aYou were logged in automatically.'
-  wrong-password: '&cWrong password. &7({ATTEMPTS} attempts left)'
-  not-registered: '&cYou are not registered. Use &e/register&c.'
-  already-authenticated: '&cYou are already logged in.'
-  locked: '&cYour account is temporarily locked. Try again later.'
-  timed-out: '&cYou took too long to authenticate.'
-  action-bar: '&7Time left: &c{TIME}s'
+    - '&6▬▬▬▬▬▬▬▬▬▬▬▬ &6&lLOGIN &r&6▬▬▬▬▬▬▬▬▬▬▬▬'
+    - '&8│ &7Please authenticate to continue.'
+    - '&8│ &7Use &f/login <password>'
+    - '&8│ &7or simply &f/login&7 to type it privately.'
+    - '&6▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬'
+  success: '&a✔ &7Authenticated. Welcome back, &f{PLAYER}&7!'
+  auto: '&a✔ &7Session restored automatically.'
+  wrong-password: '&8│ &cWrong password. &7(&e{ATTEMPTS}&7 attempts left)'
+  not-registered: '&8│ &cYou are not registered. Use &f/register&c.'
+  already-authenticated: '&8│ &cYou are already logged in.'
+  locked: '&8│ &cYour account is temporarily locked. Try again later.'
+  timed-out: '&8│ &cYou took too long to authenticate.'
+  action-bar: '&6▸ &7Time left &8· &c{TIME}s'
 
 captcha:
   prompt:
-    - '&ePlease complete the CAPTCHA to continue.'
-    - '&f{PROMPT}'
-    - '&7Answer with &f/verify <answer>'
-  correct: '&aCorrect!'
-  wrong: '&cThat answer is incorrect. &7({ATTEMPTS} attempts left)'
-  required: '&cYou must complete the CAPTCHA first.'
-  failed: '&cYou failed the CAPTCHA too many times.'
+    - '&6▬▬▬▬▬▬▬▬▬▬▬ &6&lVERIFY &r&6▬▬▬▬▬▬▬▬▬▬▬'
+    - '&8│ &7Complete the CAPTCHA to continue.'
+    - '&8│ &f{PROMPT}'
+    - '&8│ &7Answer with &f/verify <answer>'
+    - '&6▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬'
+  correct: '&a✔ &7Correct. You may register now.'
+  wrong: '&8│ &cThat answer is incorrect. &7(&e{ATTEMPTS}&7 left)'
+  required: '&8│ &cYou must complete the CAPTCHA first.'
+  failed: '&8│ &cYou failed the CAPTCHA too many times.'
 
+# ----------------------------------------------------------------------------- passwords
 password:
-  change-usage: '&cUsage: /changepassword <old> <new>'
-  change-wrong-old: '&cYour current password is incorrect.'
-  change-success: '&aYour password has been changed.'
-  unsafe: '&cThat password is not acceptable:'
-  unsafe-line: '&7- &c{REASON}'
-  too-fast: '&cPlease wait a moment before trying again.'
+  change-usage: '&8│ &cUsage: &f/changepassword <old> <new>'
+  change-wrong-old: '&8│ &cYour current password is incorrect.'
+  change-success: '&a✔ &7Password changed.'
+  unsafe: '&8│ &cThat password is not acceptable:'
+  unsafe-line: '&8│   &7▸ &c{REASON}'
+  too-fast: '&8│ &cWait a moment before trying again.'
 
+# ----------------------------------------------------------------------------- accounts
 unregister:
-  usage: '&cUsage: /unregister <player>'
-  not-found: '&cNo such account was found.'
-  success: '&aThat account has been unregistered.'
-  notify: '&cYour account has been unregistered by an administrator.'
+  usage: '&8│ &cUsage: &f/unregister <player>'
+  not-found: '&8│ &cNo such account was found.'
+  success: '&a✔ &7That account has been unregistered.'
+  notify: '&8│ &cYour account was unregistered by an administrator.'
 
 unlogin:
-  usage: '&cUsage: /unlogin [player]'
-  success: '&aYour login session has been cleared.'
-  player-success: '&aThe session for &e{PLAYER}&a has been cleared.'
-  not-online: '&cThat player is not online.'
+  usage: '&8│ &cUsage: &f/unlogin [player]'
+  success: '&a✔ &7Your login session was cleared.'
+  player-success: '&a✔ &7Cleared the session for &f{PLAYER}&7.'
+  not-online: '&8│ &cThat player is not online.'
 
 email:
-  usage: '&eSet your recovery email with &f/email <address>'
-  invalid: '&cThat does not look like a valid email address.'
-  updated: '&aYour recovery email is now &e{EMAIL}&a.'
+  usage: '&8│ &7Set your recovery email with &f/email <address>'
+  invalid: '&8│ &cThat does not look like a valid email address.'
+  updated: '&a✔ &7Recovery email set to &f{EMAIL}&7.'
 
+# ----------------------------------------------------------------------------- recovery
 recovery:
-  usage: '&eRequest a password reset with &f/resetpassword'
-  admin-usage: '&eReset another player with &f/resetpassword <player>'
-  disabled: '&cEmail recovery is not enabled on this server.'
-  no-email: '&cNo recovery email is set for that account.'
-  cooldown: '&cA reset was requested recently. Please wait.'
-  sent: '&aIf that account exists, a reset email has been sent.'
-  failed: '&cThe reset email could not be sent. Please contact an administrator.'
+  usage: '&8│ &7Request a reset with &f/resetpassword'
+  admin-usage: '&8│ &7Reset another player with &f/resetpassword <player>'
+  disabled: '&8│ &cEmail recovery is not enabled on this server.'
+  no-email: '&8│ &cNo recovery email is set for that account.'
+  cooldown: '&8│ &cA reset was requested recently. Please wait.'
+  sent: '&a✔ &7If that account exists, a reset email has been sent.'
+  failed: '&8│ &cThe reset email could not be sent. Contact an administrator.'
 
 temppassword:
-  usage: '&cUsage (console only): temppassword <player> <secret-key>'
-  wrong-key: '&cInvalid secret key.'
-  success: '&aA temporary password was set for &e{PLAYER}&a.'
-  player-message: '&eA temporary password has been set for your account by an administrator.'
+  usage: '&8│ &cUsage (console only): &ftemppassword <player>'
+  wrong-key: '&8│ &cInvalid secret key.'
+  success: '&a✔ &7A temporary password was set for &f{PLAYER}&7.'
+  player-message: '&8│ &eAn administrator set a temporary password for your account.'
 
+# ----------------------------------------------------------------------------- chat safety
 chat:
   password-blocked:
-    - '&c&lWARNING &r&7» &cYou typed your password in chat.'
-    - '&7» &cYour message was cancelled. Use &f/login&c instead.'
+    - '&6▬▬▬▬▬▬▬▬▬ &c&lWARNING &r&6▬▬▬▬▬▬▬▬▬'
+    - '&8│ &7You typed your password into chat.'
+    - '&8│ &7Your message was cancelled — use &f/login&7 instead.'
+    - '&6▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬'
 
+# ----------------------------------------------------------------------------- connections
 connection:
-  ip-banned: '&cYou are banned from this server. &7{REASON}'
-  country-blocked: '&cConnections from your country are not allowed.'
-  too-many-accounts: '&cToo many players are connected from your address.'
-  throttled: '&cThe server is busy. Please try again in a moment.'
+  ip-banned: '&8│ &cYou are banned from this server. &7{REASON}'
+  country-blocked: '&8│ &cConnections from your country are not allowed.'
+  too-many-accounts: '&8│ &cToo many players are connected from your address.'
+  throttled: '&8│ &cThe server is busy. Try again in a moment.'
 
 void-world:
-  teleported: '&7You have been moved to a secure login area.'
+  teleported: '&7You were moved to a secure login area.'
   returning: '&7Welcome back!'
 
+# ----------------------------------------------------------------------------- administration
+# The framed blocks below use box-drawing glyphs, which Minecraft's default font renders at a
+# consistent width, so the rules line up. Keep every rule exactly 54 characters.
 admin:
-  usage: '&eLightLogin administration. Subcommands: &freload, gui, stats, ban, unban, reset, unregister, info'
-  reloaded: '&aConfiguration reloaded.'
+  help:
+    - '&6╭──────────────────────────────────────────────────────╮'
+    - '&8│ &6&lLIGHTLOGIN &8» &7Administration'
+    - '&8│'
+    - '&8│ &e▸ &f/lightlogin reload &8· &7reload config, messages and GUI'
+    - '&8│ &e▸ &f/lightlogin stats &8· &7accounts, bans, sessions, workers'
+    - '&8│ &e▸ &f/lightlogin info &8· &7version, storage and hashing settings'
+    - '&8│ &e▸ &f/lightlogin gui &8· &7open the moderation menu'
+    - '&8│ &e▸ &f/lightlogin ban &7<ip|cidr> [reason] &8· &7ban an address'
+    - '&8│ &e▸ &f/lightlogin unban &7<ip|cidr> &8· &7remove a ban'
+    - '&8│ &e▸ &f/lightlogin reset &7<player> &8· &7issue a temporary password'
+    - '&8│ &e▸ &f/lightlogin unregister &7<player> &8· &7delete an account'
+    - '&8│ &e▸ &f/login-data &7<player> &8· &7inspect stored login data'
+    - '&6╰──────────────────────────────────────────────────────╯'
+  info:
+    - '&6╭──────────────────────────────────────────────────────╮'
+    - '&8│ &6&lLIGHTLOGIN &8» &7Runtime'
+    - '&8│'
+    - '&8│ &7Version &8· &f{VERSION}'
+    - '&8│ &7Schema  &8· &f{SCHEMA}'
+    - '&8│ &7Storage &8· &f{DATABASE}'
+    - '&8│ &7Hashing &8· &f{ARGON2}'
+    - '&8│ &7Pepper  &8· &f{PEPPER}'
+    - '&8│ &7Panel   &8· &f{PANEL}'
+    - '&6╰──────────────────────────────────────────────────────╯'
+  usage: '&8│ &cUnknown subcommand. Try &f/lightlogin&c.'
+  authenticate-first:
+    - '&8│ &cAdministrative actions require a completed login.'
+    - '&8│ &7Authenticate first, then run &f/lightlogin help&7.'
+  reloaded:
+    - '&a✔ &7Reloaded messages, GUI and login-flow settings.'
+    - '&8│ &7Security, database, CAPTCHA and rate-limit changes need a restart.'
   stats:
-    - '&6&lLightLogin &r&7» &fStatistics'
-    - '&7Accounts: &f{ACCOUNTS}'
-    - '&7Active bans: &f{BANS}'
-    - '&7Live sessions: &f{SESSIONS}'
-    - '&7Audit entries: &f{AUDIT}'
-    - '&7Auth workers free: &f{WORKERS}'
-  banned: '&aBanned &e{TARGET}&a.'
-  unbanned: '&aUnbanned &e{TARGET}&a.'
-  not-banned: '&cNo ban found for &e{TARGET}&c.'
-  reset: '&aNew temporary password for &e{PLAYER}&a: &f{PASSWORD}'
-  player-not-found: '&cNo such player.'
+    - '&6╭──────────────────────────────────────────────────────╮'
+    - '&8│ &6&lLIGHTLOGIN &8» &7Statistics'
+    - '&8│'
+    - '&8│ &7Accounts &8· &f{ACCOUNTS}'
+    - '&8│ &7Bans     &8· &f{BANS}'
+    - '&8│ &7Sessions &8· &f{SESSIONS}'
+    - '&8│ &7Audit    &8· &f{AUDIT}'
+    - '&8│ &7Workers  &8· &f{WORKERS} free'
+    - '&6╰──────────────────────────────────────────────────────╯'
+  banned: '&a✔ &7Banned &f{TARGET}&7.'
+  unbanned: '&a✔ &7Unbanned &f{TARGET}&7.'
+  not-banned: '&8│ &cNo ban found for &f{TARGET}&c.'
+  reset: '&a✔ &7New temporary password for &f{PLAYER}&7: &f{PASSWORD}'
+  player-not-found: '&8│ &cNo such player.'
 
-login-data-line: '&7{LABEL}: &f{VALUE}'
+login-data-line: '&8│ &7{LABEL} &8· &f{VALUE}'
 
 gui:
   title: '&8LightLogin &7» &fModeration'
-  no-permission: '&cYou do not have permission to use the moderation menu.'
+  no-permission: '&8│ &cYou do not have permission to use the moderation menu.'

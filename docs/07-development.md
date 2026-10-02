@@ -9,8 +9,7 @@
   `maven-shade-plugin` 3.6.2.
 
 ```bash
-mvn clean verify                      # build + 125 unit tests + 5 shaded-jar integration tests
-mvn -Pslim clean package              # smaller jar (excludes server drivers + GeoIP)
+mvn clean verify                      # build + 142 unit tests + 6 shaded-jar integration tests
 mvn -pl lightlogin-core test          # one module
 mvn -pl lightlogin-core -am -Dtest=AuthServiceTest -Dsurefire.failIfNoSpecifiedTests=false test
 ```
@@ -58,7 +57,7 @@ lightlogin-paper/src/main/java/dev/lightlogin/paper/
 
 ## Tests
 
-130 tests across the three modules: 125 unit tests plus 5 integration tests that run against the
+148 tests across the three modules: 142 unit tests plus 6 integration tests that run against the
 shaded jar itself. Highlights:
 
 | Suite | What it proves |
@@ -143,26 +142,54 @@ The SQLITE driver could not load a required class or its native library:
 
 ## Jar size
 
-The shaded jar is about **24 MB**:
+The shaded jar is about **1.7 MB**:
 
-| Component | Size | Why |
+| Component | Size | Why it is bundled |
 |---|---|---|
-| SQLite JDBC | ~12 MB | Native libraries for every OS/architecture; this is what makes SQLite work out of the box everywhere |
-| BouncyCastle (`bcprov`) | ~5.5 MB | Argon2. `bcpkix` would add ~1.5 MB more and is not needed. |
-| Jackson (via GeoIP) | ~2.5 MB | |
-| PostgreSQL driver | ~1.1 MB | |
-| MariaDB driver | ~0.7 MB | |
-| Angus Mail + Jakarta Mail | ~0.7 MB | Email recovery |
-| HikariCP, GeoIP reader, slf4j | ~0.4 MB | |
 | LightLogin itself | ~0.3 MB | |
+| BouncyCastle (`bcprov`), filtered | ~0.3 MB | Argon2. The full jar is ~5.5 MB, so the build keeps only the classes Argon2 reaches at runtime. |
+| Angus Mail + Jakarta Mail | ~0.7 MB | Email recovery |
+| HikariCP | ~0.15 MB | Connection pool |
+| slf4j-api + slf4j-nop | ~0.05 MB | HikariCP logs through it |
 
-To slim it, use `mvn -Pslim clean package` (about **20 MB**): the profile excludes the PostgreSQL and
-MariaDB drivers and the GeoIP reader (Jackson with them). A server using the `slim` jar and a server
-database must place the driver jar where the server can load it; SQLite and everything else keep
-working unchanged. The `slim` jar is exercised by the same SQLite integration test.
+**Not bundled** — resolved at startup and therefore never in the jar:
 
-Stripping the unused SQLite natives would save roughly another 8 MB but would break portability, so
-the build does not do it.
+| Component | Size | Why not bundled |
+|---|---|---|
+| SQLite JDBC | ~12 MB | Native libraries for every OS/architecture. Kept out of the jar, so the download is small; SQLite is the default backend and the driver is fetched on first startup like any other. |
+| Jackson + GeoIP reader | ~3.6 MB | Used only when nation blocking is configured |
+| PostgreSQL driver | ~1.1 MB | Used only when the database type is `postgresql` |
+| MariaDB driver | ~0.7 MB | Used only when the database type is `mariadb`/`mysql` |
+
+Resolution order, from `plugins/LightLogin/config.yml` (`libraries.*`):
+
+1. the server's own classpath, detected by loading the library's probe class;
+2. `plugins/LightLogin/libs/`, with the SHA-256 still checked;
+3. a download from the configured repositories, written to a temporary file, verified against the
+   pinned digest in `Libraries`, and only then moved into place.
+
+Every path checks the pinned digest, including a jar that is already on disk, so a truncated or
+altered file cannot be loaded just because it has the expected name.
+
+### Why BouncyCastle is filtered
+
+`bcprov` is a single ~5.5 MB jar and the plugin uses exactly one thing from it. Keeping only the
+classes Argon2 reaches takes it to ~0.3 MB.
+
+The list is a **runtime class closure**, not a guess, and it is larger than "Argon2 and Blake2b"
+because BouncyCastle's `CryptoServicesRegistrar` static initialiser references the ASN.1/EC parameter
+types; trimming those out throws `NoClassDefFoundError: org/bouncycastle/asn1/x9/X9ECParameters` on the
+first hash.
+
+Regenerate it with:
+
+```bash
+python3 scripts/generate-bouncycastle-filter.py
+```
+
+Do not hand-edit the block between the `GENERATED bouncycastle filter` markers in
+`lightlogin-paper/pom.xml`. `ShadedJarIT` independently hashes and verifies a password using only the
+classes the built jar contains, so a mistake fails the build rather than production.
 
 ## Conventions
 

@@ -33,10 +33,12 @@ public final class ChatPasswordListener implements Listener {
         }
         event.setCancelled(true);
         String content = PlainTextComponentSerializer.plainText().serialize(event.message());
-        // Record only that a message was blocked and its length: never its content.
-        ctx.auditService().record(player.getName(), AuditAction.LOGIN_BLOCKED, player.getUniqueId().toString(),
+        // Record only that a message was blocked and its length: never its content. The audit row
+        // is a database write and the chat event thread must not be made to wait on it.
+        ctx.async().run(() -> ctx.auditService().record(player.getName(), AuditAction.LOGIN_BLOCKED,
+                player.getUniqueId().toString(),
                 "password-shaped chat blocked (length " + content.length() + ')',
-                addressOf(player));
+                addressOf(player)));
         // The message is sent back on the main thread because the chat event is asynchronous.
         org.bukkit.Bukkit.getScheduler().runTask(ctx.plugin(), () -> {
             if (player.isOnline()) {

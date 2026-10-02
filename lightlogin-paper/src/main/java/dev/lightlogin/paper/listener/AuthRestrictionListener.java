@@ -15,7 +15,6 @@ import org.bukkit.event.entity.EntityTargetLivingEntityEvent;
 import org.bukkit.event.entity.FoodLevelChangeEvent;
 import org.bukkit.event.inventory.InventoryOpenEvent;
 import org.bukkit.event.player.PlayerCommandPreprocessEvent;
-import org.bukkit.event.player.PlayerCommandSendEvent;
 import org.bukkit.event.player.PlayerDropItemEvent;
 import org.bukkit.event.player.PlayerInteractEntityEvent;
 import org.bukkit.event.player.PlayerInteractEvent;
@@ -143,6 +142,12 @@ public final class AuthRestrictionListener implements Listener {
      *
      * <p>The allowed list is compared against the command root (before the first space and with any
      * namespace removed), so {@code /minecraft:login} is treated as {@code /login}.</p>
+     *
+     * <p>Only execution is blocked. The client's command list is deliberately left untouched: an
+     * earlier version stripped every command but the authentication ones from the client, which
+     * broke tab completion for the whole server and hid other plugins' commands from their own
+     * players. Hiding suggestions is presentation, never enforcement, and the security requirement
+     * (no password in the logs) is met by the log filter and the private input window instead.</p>
      */
     @EventHandler(priority = EventPriority.LOW, ignoreCancelled = true)
     public void onCommand(PlayerCommandPreprocessEvent event) {
@@ -168,33 +173,5 @@ public final class AuthRestrictionListener implements Listener {
         }
         event.setCancelled(true);
         ctx.messages().send(player, "login.prompt");
-    }
-
-    /**
-     * Hides every command but the authentication ones from the client while pending.
-     *
-     * <p>This is the "commands are not readable or accessible" requirement: the client is never
-     * told the server's command list, and the authentication commands themselves are offered
-     * without any argument hints.</p>
-     */
-    @EventHandler(priority = EventPriority.LOW)
-    public void onCommandSend(PlayerCommandSendEvent event) {
-        if (!pending(event.getPlayer())) {
-            return;
-        }
-        java.util.List<String> allowed = ctx.config().login().allowedCommands();
-        event.getCommands().removeIf(command -> {
-            String name = command;
-            int colon = name.indexOf(':');
-            if (colon >= 0) {
-                name = name.substring(colon + 1);
-            }
-            for (String permitted : allowed) {
-                if (permitted.equalsIgnoreCase(name)) {
-                    return false;
-                }
-            }
-            return true;
-        });
     }
 }

@@ -25,11 +25,23 @@ import java.util.regex.Pattern;
 @Plugin(name = "LightLoginSecretFilter", category = "Core", elementType = "filter")
 public final class SecretLogFilter extends AbstractFilter {
 
-    private static final Pattern CREDENTIAL_COMMAND = Pattern.compile(
-            "(?i)/(?:login|register|changepassword|changepsw|resetpassword|verify|temppassword)\\s+\\S+");
+    /**
+     * The command a player or the console dispatched, as the server writes it to the log.
+     *
+     * <p>Anchored on the server's own wording ({@code issued server command:}) so it cannot match
+     * an unrelated line that merely mentions a command name.</p>
+     */
+    private static final Pattern DISPATCHED_COMMAND = Pattern.compile(
+            "(?i)issued server command:\\s*/?(?:login|register|changepassword|changepsw|resetpassword|verify|temppassword)\\s+\\S+");
 
-    private static final Pattern CREDENTIAL_COMMAND_NO_SLASH = Pattern.compile(
-            "(?i)\\bissued server command:\\s*(?:/)?(?:login|register|changepassword|changepsw|resetpassword|verify|temppassword)\\s+\\S+");
+    /**
+     * A credential-bearing command typed directly at the console, which is logged on its own line.
+     *
+     * <p>Anchored at the start of the line. An unanchored pattern also swallowed other plugins'
+     * lines such as "Registered /register command", which is why this is anchored.</p>
+     */
+    private static final Pattern LEADING_COMMAND = Pattern.compile(
+            "(?i)^\\s*/?(?:login|register|changepassword|changepsw|resetpassword|verify|temppassword)\\s+\\S+");
 
     private final AtomicLong denied = new AtomicLong();
 
@@ -57,8 +69,8 @@ public final class SecretLogFilter extends AbstractFilter {
         if (text == null || text.isEmpty()) {
             return false;
         }
-        return CREDENTIAL_COMMAND.matcher(text).find()
-                || CREDENTIAL_COMMAND_NO_SLASH.matcher(text).find();
+        return DISPATCHED_COMMAND.matcher(text).find()
+                || LEADING_COMMAND.matcher(text).find();
     }
 
     /** Also filters the raw parameter form, which some log calls use instead of a Message. */
@@ -94,8 +106,8 @@ public final class SecretLogFilter extends AbstractFilter {
 
     /** Exposed for tests: whether a line would be dropped. */
     public static boolean wouldRedact(String line) {
-        return line != null && (CREDENTIAL_COMMAND.matcher(line).find()
-                || CREDENTIAL_COMMAND_NO_SLASH.matcher(line).find());
+        return line != null && (DISPATCHED_COMMAND.matcher(line).find()
+                || LEADING_COMMAND.matcher(line).find());
     }
 
     /** A redactor configured like the filter, for the plugin's own logging paths. */
