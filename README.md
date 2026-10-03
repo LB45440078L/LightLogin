@@ -125,7 +125,7 @@ published both as a static accessor and through Bukkit's services manager. See
 
 ## Install
 
-1. Drop `lightlogin-paper-3.0.0.jar` into your `plugins/` folder.
+1. Drop `lightlogin-spigot-3.0.0.jar` into your `plugins/` folder.
 2. Start the server once. LightLogin writes `config.yml`, `messages.yml`, `gui.yml` and a
    `lightlogin.key` master key into `plugins/LightLogin/`.
 3. Set the pepper environment variable (strongly recommended, and worth doing on day one):
@@ -151,7 +151,7 @@ mvn clean package                # build plus unit tests, stopping before the ja
 mvn -pl lightlogin-core test     # one module
 ```
 
-Output: `lightlogin-paper/target/lightlogin-paper-3.0.0.jar`
+Output: `lightlogin-spigot/target/lightlogin-spigot-3.0.0.jar`
 
 Use `verify` rather than `package` for the complete suite, because the integration tests inspect the
 shaded jar and therefore run in the phase after packaging. The jar size, the bundled library set and

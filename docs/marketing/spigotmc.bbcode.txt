@@ -104,7 +104,7 @@ It carries only what it always needs. Database drivers and the optional GeoIP re
 
 [SIZE=5][B]Install[/B][/SIZE]
 [LIST=1]
-[*]Drop [FONT=Courier New]lightlogin-paper-3.0.0.jar[/FONT] into your [FONT=Courier New]plugins/[/FONT] folder.
+[*]Drop [FONT=Courier New]lightlogin-spigot-3.0.0.jar[/FONT] into your [FONT=Courier New]plugins/[/FONT] folder.
 [*]Start the server once. LightLogin writes its config, its messages and a master key into [FONT=Courier New]plugins/LightLogin/[/FONT].
 [*]Set the pepper environment variable. Strongly recommended, and worth doing on day one.
 [*]Review the config and restart.

@@ -19,7 +19,7 @@ import java.util.Locale;
  *
  * <p>Unlike the rest of the plugin this class reaches the GeoIP reader <em>reflectively</em>. The
  * reader and its Jackson dependencies are about three megabytes and are only used when nation
- * blocking is configured, so {@code lightlogin-paper} does not compile against them: they are
+ * blocking is configured, so {@code lightlogin-spigot} does not compile against them: they are
  * resolved at startup like the JDBC drivers (see
  * {@link dev.lightlogin.paper.library.LibraryManager}) and handed to {@link #open} as a class
  * loader. The reflective handles are resolved once and reused, so the per-connection cost is the

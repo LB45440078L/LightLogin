@@ -25,7 +25,7 @@
     <modules>
         <module>lightlogin-core</module>
         <module>lightlogin-persistence</module>
-        <module>lightlogin-paper</module>
+        <module>lightlogin-spigot</module>
     </modules>
 
     <properties>

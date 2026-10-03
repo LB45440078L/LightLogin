@@ -6,7 +6,7 @@
 lightlogin-parent
 ├── lightlogin-core          domain + crypto + captcha + rate limiting + ports + web panel
 ├── lightlogin-persistence   JDBC adapters (SQLite / MariaDB / PostgreSQL), portable schema
-└── lightlogin-paper         the Bukkit plugin: commands, listeners, GUI, void world, wiring
+└── lightlogin-spigot        the Bukkit plugin: commands, listeners, GUI, void world, wiring
 ```
 
 `lightlogin-core` has **no dependency on any Minecraft server API**. That is the single most

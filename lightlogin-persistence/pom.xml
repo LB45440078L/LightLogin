@@ -31,7 +31,7 @@
         <!--
           The JDBC drivers are deliberately NOT compile dependencies, so they cannot leak into the
           shaded plugin jar: DataSourceFactory loads the driver through a ClassLoader that the
-          paper module supplies (see LibraryManager), and the driver therefore only needs to exist
+          lightlogin-spigot module supplies (see LibraryManager), and the driver therefore only needs to exist
           at runtime.
 
           SQLite is kept at test scope so JdbcRepositoriesTest can run the real SQLite engine

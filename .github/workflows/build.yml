@@ -31,7 +31,7 @@ jobs:
         run: |
           python3 - <<'PY'
           import collections, sys, zipfile
-          path = 'lightlogin-paper/target/lightlogin-paper-3.0.0.jar'
+          path = 'lightlogin-spigot/target/lightlogin-spigot-3.0.0.jar'
           z = zipfile.ZipFile(path)
           own = [n for n in z.namelist()
                  if n.endswith('.class') and n.startswith('dev/lightlogin/')
@@ -45,6 +45,6 @@ jobs:
       - name: Upload the plugin jar
         uses: actions/upload-artifact@v4
         with:
-          name: lightlogin-paper-jdk${{ matrix.java }}
-          path: lightlogin-paper/target/lightlogin-paper-*.jar
+          name: lightlogin-spigot-jdk${{ matrix.java }}
+          path: lightlogin-spigot/target/lightlogin-spigot-*.jar
           if-no-files-found: error

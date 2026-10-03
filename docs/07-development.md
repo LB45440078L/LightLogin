@@ -40,7 +40,7 @@ lightlogin-persistence/src/main/java/dev/lightlogin/persistence/
   DataSourceFactory, SchemaMigrator, JdbcSupport, Jdbc*Repository, PersistenceBootstrap
   resources/db/migrations/index.txt, V1__init.sql
 
-lightlogin-paper/src/main/java/dev/lightlogin/paper/
+lightlogin-spigot/src/main/java/dev/lightlogin/paper/
   LightLoginPlugin, bootstrap/, config/, command/, listener/, gui/, auth/, world/,
   mail/, geo/, log/, messages/, task/
 ```
@@ -191,7 +191,7 @@ python3 scripts/generate-bouncycastle-filter.py
 ```
 
 Do not hand-edit the block between the `GENERATED bouncycastle filter` markers in
-`lightlogin-paper/pom.xml`. Regenerate with:
+`lightlogin-spigot/pom.xml`. Regenerate with:
 
 ```bash
 python3 scripts/generate-bouncycastle-filter.py
@@ -217,7 +217,7 @@ production.
 # own classes must be Java 25 (class-file major 69)
 python3 - <<'PY'
 import zipfile, collections
-z = zipfile.ZipFile('lightlogin-paper/target/lightlogin-paper-3.0.0.jar')
+z = zipfile.ZipFile('lightlogin-spigot/target/lightlogin-spigot-3.0.0.jar')
 own = [n for n in z.namelist() if n.endswith('.class') and n.startswith('dev/lightlogin/')
        and not n.startswith('dev/lightlogin/libs/')]
 majors = collections.Counter(((z.read(n)[6]<<8)|z.read(n)[7]) for n in own)

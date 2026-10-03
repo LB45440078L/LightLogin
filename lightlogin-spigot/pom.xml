@@ -10,9 +10,9 @@
         <version>3.0.0</version>
     </parent>
 
-    <artifactId>lightlogin-paper</artifactId>
-    <name>LightLogin :: Paper</name>
-    <description>The Paper plugin: commands, listeners, GUIs, void world, admin web panel and SMTP wiring.</description>
+    <artifactId>lightlogin-spigot</artifactId>
+    <name>LightLogin :: Spigot</name>
+    <description>The Bukkit plugin: commands, listeners, GUIs, void world, admin web panel and SMTP wiring.</description>
 
     <dependencies>
         <dependency>
@@ -30,7 +30,7 @@
             <scope>provided</scope>
         </dependency>
         <dependency>
-            <!-- Paper ships Log4j; used only to install the secret-redacting log filter. -->
+            <!-- The server ships Log4j; used only to install the secret-redacting log filter. -->
             <groupId>org.apache.logging.log4j</groupId>
             <artifactId>log4j-core</artifactId>
             <scope>provided</scope>

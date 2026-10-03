@@ -1,12 +1,12 @@
 #!/usr/bin/env python3
-"""Regenerate the BouncyCastle class filter in lightlogin-paper/pom.xml.
+"""Regenerate the BouncyCastle class filter in lightlogin-spigot/pom.xml.
 
 The plugin uses exactly one thing from BouncyCastle: Argon2id. Shipping the whole of `bcprov`
 costs ~5.5 MB, so the pom keeps only the classes Argon2 actually reaches at runtime.
 
 The set is a *runtime* closure, not a guess: it is computed from the class files' constant pools
 starting at `Argon2BytesGenerator`, and it is verified by
-`lightlogin-paper/src/test/java/dev/lightlogin/paper/packaging/ShadedJarIT.java`, which hashes and
+`lightlogin-spigot/src/test/java/dev/lightlogin/paper/packaging/ShadedJarIT.java`, which hashes and
 verifies a password using only the classes present in the built jar.
 
 Note that the closure is larger than "Argon2 and Blake2b" because BouncyCastle's
@@ -27,7 +27,7 @@ import zipfile
 from pathlib import Path
 
 ROOT = Path(__file__).resolve().parent.parent
-POM = ROOT / "lightlogin-paper" / "pom.xml"
+POM = ROOT / "lightlogin-spigot" / "pom.xml"
 START = "<!-- BEGIN GENERATED bouncycastle filter -->"
 END = "<!-- END GENERATED bouncycastle filter -->"
 ROOT_CLASS = "org/bouncycastle/crypto/generators/Argon2BytesGenerator"
