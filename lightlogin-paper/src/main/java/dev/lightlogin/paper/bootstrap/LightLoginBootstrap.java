@@ -413,6 +413,9 @@ public final class LightLoginBootstrap {
         manager.registerEvents(new ChatPasswordListener(context), plugin);
         manager.registerEvents(passwordInput, plugin);
         manager.registerEvents(moderationGui, plugin);
+        // Refuses an ender dragon in the login world. No game rule covers the dragon, so this is the
+        // only layer that can stop one the moment it is created.
+        manager.registerEvents(new dev.lightlogin.paper.world.LoginWorldGuard(context.voidWorld()), plugin);
     }
 
     private void startAdminPanel(PluginContext context, SecurityContext security, AdminService adminService,

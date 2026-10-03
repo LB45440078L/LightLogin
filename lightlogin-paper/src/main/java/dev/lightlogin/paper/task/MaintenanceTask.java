@@ -77,6 +77,16 @@ public final class MaintenanceTask {
             }
         }
 
+        // A world in the End dimension is the End as far as the server is concerned, and the dragon
+        // fight is not covered by any game rule. The spawn listener refuses a dragon as it is created;
+        // this removes one that arrived without raising an event. The world holds no other entities,
+        // so the scan is trivial.
+        int dragons = ctx.voidWorld().removeDragons();
+        if (dragons > 0) {
+            ctx.plugin().getLogger().info("Removed " + dragons
+                    + " ender dragon(s) from the login world.");
+        }
+
         // Housekeeping once a minute: expire sessions, bans, challenges and old audit rows.
         if (tickCounter % 60 == 0) {
             housekeeping(now);

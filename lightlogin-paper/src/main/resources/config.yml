@@ -135,7 +135,14 @@ safety:
 #   dimension: END    -> the blank world is generated in the End (dark sky, End ambience)
 #              NORMAL -> the blank world is generated in the overworld (normal sky)
 #   Both variants contain no terrain, no structures and no mobs; the dimension only changes
-#   how the empty world looks. Neither is the server's real end or overworld.
+#   how the empty world looks. Neither is the server's real end or overworld. The ender
+#   dragon is refused, so nothing hostile exists there either.
+#
+#   The world is produced by an explicit empty chunk generator, which is the only way to get
+#   an empty world in the End: the End's own generator would put its island there. Terrain is
+#   written once, at creation, so a folder left over from an older build keeps whatever it was
+#   generated with. If the startup log says the world is not empty, stop the server, delete
+#   that folder and start again.
 # -------------------------------------------------------------------------------------
 void-world:
   enabled: false
