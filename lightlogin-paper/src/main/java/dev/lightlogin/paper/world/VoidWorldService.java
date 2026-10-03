@@ -48,6 +48,18 @@ public final class VoidWorldService {
     /** Spacing between samples inside that area. */
     private static final int EMPTINESS_SAMPLE_STEP = 8;
 
+    /**
+     * How many layers at the bottom of a world are treated as floor rather than terrain.
+     *
+     * <p>A world's floor is at its minimum height, and things legitimately end up there that are not
+     * terrain. A world created in the End dimension is the End as far as the server is concerned, so
+     * the dragon fight initialises and places the End's exit portal; in a world with no terrain the
+     * height it derives for that is the bottom of the world, so the portal lands on the floor, a
+     * hundred blocks below where a player floats during login. Treating that as "the world has
+     * terrain" was wrong, and it rejected a genuinely empty world.</p>
+     */
+    private static final int FLOOR_TOLERANCE_LAYERS = 4;
+
     private final JavaPlugin plugin;
     private final VoidWorldConfig config;
     private World world;
@@ -135,37 +147,70 @@ public final class VoidWorldService {
     }
 
     /**
-     * Whether the world holds nothing that a player could see or stand on.
+     * Whether the world is empty enough to log in to.
      *
-     * <p>Blocks are read directly rather than through the height map, and every air variant counts as
-     * empty. Both of those are corrections to this check's first version, which used
-     * {@code getHighestBlockAt} and compared against {@link Material#AIR} exactly. An empty End is
-     * filled with {@code void_air}, not {@code air}, so that version reported a perfectly empty world
-     * as full. It happened to pass on the very first start only because the spawn area had not been
-     * generated yet, and a chunk that does not exist contributes no blocks: the check was vacuous
-     * exactly once, then lied on every restart afterwards.</p>
+     * <p>The question this answers is "would a player standing at the login position look out at
+     * terrain", not "is every block in the world air". Those differ, and conflating them produced two
+     * successive false alarms:</p>
      *
-     * <p>The chunks are generated before being read for the same reason. Sampling spans a few chunks
-     * around the origin, which is where the End's island would be, so a world that really was
-     * generated with terrain is still caught.</p>
+     * <ul>
+     *   <li>Blocks are read directly rather than through the height map, and every air variant counts
+     *       as empty. An empty End is filled with {@code void_air}, not {@code air}, so comparing
+     *       against {@link Material#AIR} reported a perfectly empty world as full. It passed on the
+     *       very first start only because the spawn area had not been generated yet, so there were no
+     *       blocks to misjudge: the check was vacuous exactly once, then wrong on every restart.</li>
+     *   <li>The bottom few layers are treated as floor, not terrain. The End's exit portal is placed
+     *       on the world floor of an empty world, which is neither visible nor reachable from the
+     *       login position.</li>
+     * </ul>
+     *
+     * <p>Chunks are generated before being read, so the check can never pass by examining nothing.
+     * Sampling spans a few chunks around the origin, which is where the End's island and its pillars
+     * would be, so a world that really was generated with terrain is still caught.</p>
      */
     private boolean looksEmpty(World candidate) {
-        int floor = candidate.getMinHeight();
+        int minimumHeight = candidate.getMinHeight();
         int ceiling = candidate.getMaxHeight();
+        int found = 0;
+        int lowest = Integer.MAX_VALUE;
+        int highest = Integer.MIN_VALUE;
+
         for (int x = -EMPTINESS_SAMPLE_RADIUS; x <= EMPTINESS_SAMPLE_RADIUS; x += EMPTINESS_SAMPLE_STEP) {
             for (int z = -EMPTINESS_SAMPLE_RADIUS; z <= EMPTINESS_SAMPLE_RADIUS; z += EMPTINESS_SAMPLE_STEP) {
                 // Force the chunk to exist first, so this never passes by examining nothing.
                 candidate.getChunkAt(x >> 4, z >> 4);
-                for (int y = floor; y < ceiling; y++) {
+                for (int y = minimumHeight; y < ceiling; y++) {
                     Material material = candidate.getBlockAt(x, y, z).getType();
-                    if (!isAirLike(material)) {
-                        firstForeignBlock = material + " at " + x + ", " + y + ", " + z;
-                        return false;
+                    if (!isTerrainBlock(material, y, minimumHeight)) {
+                        continue;
                     }
+                    if (found == 0) {
+                        firstForeignBlock = material + " at " + x + ", " + y + ", " + z;
+                    }
+                    found++;
+                    lowest = Math.min(lowest, y);
+                    highest = Math.max(highest, y);
                 }
             }
         }
-        return true;
+
+        if (found > 0) {
+            // How much there is, and how far it spans, is what separates a stray artefact from real
+            // terrain: one block on the floor is a curiosity, thousands spanning a range is an island.
+            firstForeignBlock += " (" + found + " block(s) between y=" + lowest + " and y=" + highest + ')';
+        }
+        return found == 0;
+    }
+
+    /**
+     * Whether a block is terrain rather than floor or air.
+     *
+     * <p>Two conditions, and both are corrections to earlier versions of this check. Air is not
+     * terrain, and neither is anything sitting in the bottom layers of the world: that is where a
+     * floor lives, and where the End's exit portal ends up in a world with no terrain.</p>
+     */
+    static boolean isTerrainBlock(Material material, int y, int minimumHeight) {
+        return !isAirLike(material) && y >= minimumHeight + FLOOR_TOLERANCE_LAYERS;
     }
 
     /**

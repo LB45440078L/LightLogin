@@ -178,10 +178,15 @@ rule covers it. A world in the End dimension is the End as far as the server is 
 dragon fight is otherwise a live possibility.
 
 **Terrain is written once, at creation.** A world folder left over from an earlier build keeps the
-terrain it was generated with, and no generator change can remove it. On startup the world is checked,
-and if it is not empty the plugin says so, names the folder to delete, and disables login teleporting
-until it is gone, so players authenticate where they are rather than standing next to a generated
-island. To fix it: stop the server, delete the folder named in the log, start again.
+terrain it was generated with, and no generator change can remove it.
+
+On startup the world is checked for terrain, and the bottom few layers are excluded from that check
+because the End's exit portal lands on the floor of an empty world: it is a hundred blocks below the
+login position, invisible, and not a sign of anything wrong. So one lone bedrock block down there is
+tolerated, and the check failing means real terrain. When it fails it names what it found, how many
+blocks, and the vertical range they span, which is what separates a stray artefact from an island.
+It also names the folder to delete and disables login teleporting until that is done, so players
+authenticate where they are rather than standing next to a generated island.
 
 A second world still has a real cost (its own chunk cache and a world-list entry). Leave it off
 unless unauthenticated entities in the main world are a problem for you.

@@ -38,4 +38,23 @@ class VoidWorldServiceTest {
         assertFalse(VoidWorldService.isAirLike(Material.BEDROCK));
         assertFalse(VoidWorldService.isAirLike(Material.STONE));
     }
+
+    @Test
+    @DisplayName("the bottom layers of a world are floor, not terrain")
+    void floorIsNotTerrain() {
+        int minimumHeight = 0;
+        // The End's exit portal ends up here in an empty world: it is neither visible nor reachable
+        // from the login position, so it must not make the world count as broken.
+        for (int y = minimumHeight; y < minimumHeight + 4; y++) {
+            assertFalse(VoidWorldService.isTerrainBlock(Material.BEDROCK, y, minimumHeight),
+                    "bedrock at y=" + y + " is the floor, not terrain");
+        }
+        // One layer above the floor tolerance, it is terrain again.
+        assertTrue(VoidWorldService.isTerrainBlock(Material.BEDROCK, minimumHeight + 4, minimumHeight));
+        // And the End's island, far above any floor, is always terrain.
+        assertTrue(VoidWorldService.isTerrainBlock(Material.END_STONE, 60, minimumHeight));
+        assertTrue(VoidWorldService.isTerrainBlock(Material.OBSIDIAN, 76, minimumHeight));
+        // Air is never terrain, at any height.
+        assertFalse(VoidWorldService.isTerrainBlock(Material.VOID_AIR, 60, minimumHeight));
+    }
 }
