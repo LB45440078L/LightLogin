@@ -4,7 +4,7 @@
 
 ![Version](https://img.shields.io/badge/version-3.0.0-5b8cff?style=for-the-badge)
 ![Java](https://img.shields.io/badge/Java-25-ED8B00?style=for-the-badge&logo=openjdk&logoColor=white)
-![Paper](https://img.shields.io/badge/Paper-26.1%2B-1f6feb?style=for-the-badge)
+![Platform](https://img.shields.io/badge/Spigot%20%7C%20Paper-26.2-1f6feb?style=for-the-badge)
 ![Tests](https://img.shields.io/badge/tests-149%20passing-3ddc97?style=for-the-badge)
 ![Jar](https://img.shields.io/badge/jar-1.7%20MB-ffcf5b?style=for-the-badge)
 ![Hashing](https://img.shields.io/badge/passwords-Argon2id-8957e5?style=for-the-badge)
@@ -15,7 +15,9 @@
 ![Stars](https://img.shields.io/github/stars/LB45440078L/LightLogin?style=flat-square)
 ![Issues](https://img.shields.io/github/issues/LB45440078L/LightLogin?style=flat-square)
 
-LightLogin handles the login and registration flow for Paper servers on Minecraft 26.1 and newer.
+LightLogin handles the login and registration flow for Spigot and Paper servers on Minecraft 26.2
+and newer. It builds against the Spigot API and uses only the common Bukkit surface, so it runs on
+Paper and on any fork that keeps the Bukkit contract.
 
 This is a complete rewrite of the original LightLogin rather than a patch release. The storage layer,
 the cryptography, the command surface and the admin panel were all rebuilt around a single idea:
@@ -115,7 +117,7 @@ published both as a static accessor and through Bukkit's services manager. See
 
 ## Requirements
 
-* Paper 26.1 or newer
+* Spigot or Paper 26.2 or newer. Built against the Spigot API, using only the Bukkit surface
 * Java 25 or newer at runtime
 * Optional: MySQL, MariaDB or PostgreSQL. SQLite is bundled and is the default
 * Optional: an SMTP account for email based password recovery

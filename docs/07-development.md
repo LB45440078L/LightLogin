@@ -3,7 +3,7 @@
 ## Toolchain
 
 * **Build JDK 27** (the compiler runs on it) with `maven.compiler.release = 25`, so the artifact
-  targets Java 25 bytecode — the minimum for the Paper 26.1 line.
+  targets Java 25 bytecode — the minimum for the Minecraft 26.2 line.
 * **Maven 3.9+**
 * The build was verified with `maven-compiler-plugin` 3.16.0, `maven-surefire-plugin` 3.6.0 and
   `maven-shade-plugin` 3.6.2.
@@ -93,24 +93,27 @@ This is not hypothetical. `org.sqlite` was originally relocated, and the plugin 
 java.lang.UnsatisfiedLinkError: 'void dev.lightlogin.libs.org.sqlite.core.NativeDB._open_utf8(byte[], int)'
 ```
 
-because the driver could no longer find its own native library. The multi-release libraries are
-therefore left at their own coordinates, and `ShadedJarIT` fails the build if anyone relocates one
-again.
+because the driver could no longer find its own native library.
 
-| Library | Multi-release content | Relocated? |
+The rule that follows from this is simple: **the jar must contain no multi-release content at all**,
+and `ShadedJarIT` fails the build if any appears. That is achieved by keeping the drivers and the GeoIP
+reader out of the jar entirely (they are resolved at runtime) and by filtering BouncyCastle down to
+base classes, which removes its `META-INF/versions` tree. Once nothing multi-release is left to
+relocate, everything bundled is relocated:
+
+| Library | Multi-release content in the jar | Relocated? |
 |---|---|---|
-| `org.bouncycastle` | versions 11/15/17/25 | no |
-| `com.fasterxml.jackson` | versions 11/17/21 | no |
-| `org.mariadb` | versions 11/15 | no |
-| `org.postgresql` | versions 11 | no |
-| `org.sqlite` | versions 9 | no |
-| `com.zaxxer.hikari` | — | yes |
-| `org.eclipse.angus`, `jakarta.mail`, `jakarta.activation` | — | yes |
-| `com.maxmind` | — | yes |
-| `org.slf4j` | — | yes |
+| `org.bouncycastle` (filtered to base classes) | none | yes |
+| `com.zaxxer.hikari` | none | yes |
+| `org.eclipse.angus`, `jakarta.mail`, `jakarta.activation` | none | yes |
+| `org.slf4j` | none | yes |
+| `org.sqlite`, `org.postgresql`, `org.mariadb` | not bundled | n/a |
+| `com.maxmind`, `com.fasterxml.jackson` | not bundled | n/a |
 
-Leaving the first five un-relocated is safe on Paper, which gives every plugin its own child-first
-classloader, so they cannot clash with another plugin's copy.
+Relocating everything matters more on Spigot than on Paper. Paper gives every plugin a child-first
+classloader, so an un-relocated library in one plugin shadows nothing else. Spigot's plugin
+classloader delegates third-party packages to the shared parent, so two plugins bundling different
+versions of the same library would fight over it. Nothing here shares a namespace with anything.
 
 Two supporting details:
 
@@ -188,8 +191,16 @@ python3 scripts/generate-bouncycastle-filter.py
 ```
 
 Do not hand-edit the block between the `GENERATED bouncycastle filter` markers in
-`lightlogin-paper/pom.xml`. `ShadedJarIT` independently hashes and verifies a password using only the
-classes the built jar contains, so a mistake fails the build rather than production.
+`lightlogin-paper/pom.xml`. Regenerate with:
+
+```bash
+python3 scripts/generate-bouncycastle-filter.py
+```
+
+Note that the filter also removes BouncyCastle's `META-INF/versions` tree, which is what makes it
+safe to relocate like every other bundled library. `ShadedJarIT` independently hashes and verifies a
+password using only the classes the built jar contains, so a mistake fails the build rather than
+production.
 
 ## Conventions
 

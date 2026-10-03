@@ -8,7 +8,7 @@ import dev.lightlogin.paper.api.PlayerAuthenticatedEvent;
 import dev.lightlogin.paper.auth.AuthGate;
 import dev.lightlogin.paper.auth.LoginEffects;
 import dev.lightlogin.paper.bootstrap.PluginContext;
-import net.kyori.adventure.text.serializer.legacy.LegacyComponentSerializer;
+import dev.lightlogin.paper.messages.MessageService;
 import org.bukkit.Bukkit;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.EventPriority;
@@ -42,8 +42,7 @@ public final class ConnectionListener implements Listener {
         if (!ctx.connectionLimiter().tryAcquire(ip)) {
             ctx.auditService().record("system", AuditAction.CONNECTION_THROTTLED, event.getName(), "connection rate", ip);
             event.disallow(AsyncPlayerPreLoginEvent.Result.KICK_OTHER,
-                    LegacyComponentSerializer.legacyAmpersand().deserialize(
-                            ctx.messages().raw("connection.throttled")));
+                    MessageService.colour(ctx.messages().raw("connection.throttled")));
             return;
         }
 
@@ -52,7 +51,7 @@ public final class ConnectionListener implements Listener {
         if (verdict instanceof IpBanService.Verdict.Banned banned) {
             ctx.auditService().record("system", AuditAction.LOGIN_BLOCKED, event.getName(), "ip banned", ip);
             event.disallow(AsyncPlayerPreLoginEvent.Result.KICK_BANNED,
-                    LegacyComponentSerializer.legacyAmpersand().deserialize(
+                    MessageService.colour(
                             ctx.messages().raw("connection.ip-banned").replace("{REASON}", banned.reason())));
             return;
         }
@@ -60,8 +59,7 @@ public final class ConnectionListener implements Listener {
             ctx.auditService().record("system", AuditAction.COUNTRY_BLOCKED, event.getName(),
                     "country " + blocked.country(), ip);
             event.disallow(AsyncPlayerPreLoginEvent.Result.KICK_OTHER,
-                    LegacyComponentSerializer.legacyAmpersand().deserialize(
-                            ctx.messages().raw("connection.country-blocked")));
+                    MessageService.colour(ctx.messages().raw("connection.country-blocked")));
             return;
         }
 
@@ -73,8 +71,7 @@ public final class ConnectionListener implements Listener {
                     .count();
             if (online >= maxPerIp) {
                 event.disallow(AsyncPlayerPreLoginEvent.Result.KICK_OTHER,
-                        LegacyComponentSerializer.legacyAmpersand().deserialize(
-                                ctx.messages().raw("connection.too-many-accounts")));
+                        MessageService.colour(ctx.messages().raw("connection.too-many-accounts")));
                 return;
             }
         }

@@ -25,8 +25,8 @@
         </dependency>
 
         <dependency>
-            <groupId>io.papermc.paper</groupId>
-            <artifactId>paper-api</artifactId>
+            <groupId>org.spigotmc</groupId>
+            <artifactId>spigot-api</artifactId>
             <scope>provided</scope>
         </dependency>
         <dependency>
@@ -448,11 +448,12 @@
                               (observed: sqlite-jdbc -> NoClassDefFoundError on NativeDB, which
                               surfaces as UnsatisfiedLinkError on the server).
 
-                              The libraries below ship no multi-release content, so relocating them
-                              is safe and keeps them out of the shared namespace. BouncyCastle is
-                              multi-release and is therefore left at its own coordinates (Paper
-                              gives every plugin its own child-first classloader, so that cannot
-                              clash with another plugin's copy).
+                              Every library below, BouncyCastle included, is relocated into
+                              dev.lightlogin.libs so it cannot collide with another plugin's copy in
+                              the shared namespace. BouncyCastle is only safe to relocate because the
+                              build filters it down to base classes and the jar is asserted to carry
+                              no META-INF/versions content at all; shipped whole, its multi-release
+                              half made relocation impossible.
                             -->
                             <relocations>
                                 <relocation>
@@ -474,6 +475,10 @@
                                 <relocation>
                                     <pattern>org.slf4j</pattern>
                                     <shadedPattern>dev.lightlogin.libs.org.slf4j</shadedPattern>
+                                </relocation>
+                                <relocation>
+                                    <pattern>org.bouncycastle</pattern>
+                                    <shadedPattern>dev.lightlogin.libs.org.bouncycastle</shadedPattern>
                                 </relocation>
                             </relocations>
                             <transformers>

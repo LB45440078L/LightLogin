@@ -1,7 +1,6 @@
 package dev.lightlogin.paper.command;
 
 import dev.lightlogin.paper.bootstrap.PluginContext;
-import net.kyori.adventure.audience.Audience;
 import org.bukkit.Bukkit;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
@@ -36,11 +35,11 @@ public abstract class CommandSupport {
     }
 
     /** Sends a message. */
-    protected void send(Audience audience, String key, Map<String, String> placeholders) {
+    protected void send(CommandSender audience, String key, Map<String, String> placeholders) {
         ctx.messages().send(audience, key, placeholders);
     }
 
-    protected void send(Audience audience, String key) {
+    protected void send(CommandSender audience, String key) {
         ctx.messages().send(audience, key);
     }
 

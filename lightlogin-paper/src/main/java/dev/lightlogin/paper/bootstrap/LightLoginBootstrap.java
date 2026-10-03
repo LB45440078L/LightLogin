@@ -90,7 +90,7 @@ public final class LightLoginBootstrap {
         saveBundledResource("gui.yml");
 
         LightLoginConfig config = loadConfig();
-        banner.print(plugin.getPluginMeta().getVersion(), config.configVersion());
+        banner.print(plugin.getDescription().getVersion(), config.configVersion());
         banner.step("Loading configuration...");
         banner.ok("Configuration schema " + config.configVersion() + " loaded.");
 
@@ -240,7 +240,7 @@ public final class LightLoginBootstrap {
         maintenanceTask.start();
 
         auditService.record("system", dev.lightlogin.core.security.AuditAction.STARTUP, "plugin",
-                "version " + plugin.getPluginMeta().getVersion(), "");
+                "version " + plugin.getDescription().getVersion(), "");
         banner.ok("LightLogin is ready.");
         reportMissingCommandRegistrations();
     }

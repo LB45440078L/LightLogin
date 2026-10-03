@@ -8,7 +8,7 @@ the database schema. This page lists what changed and what an upgrade requires.
 | Original | This rewrite |
 |---|---|
 | Package `top.cmarco.lightlogin` | `dev.lightlogin.*` (core / persistence / paper) |
-| Single Maven module, Java 17, Spigot API 1.21.1 | Three modules, Java 25, Paper API 26.1 |
+| Single Maven module, Java 17, Spigot API 1.21.1 | Three modules, Java 25, Spigot API 26.2 |
 | Plugin name `LightLogin` | `LightLogin` (unchanged) |
 | Commands `login`, `register`, `verify`, `changepassword`, `unregister`, `unlogin`, `email`, `resetpassword`, `temppassword`, `login-data`, `lightlogin` | Same names and aliases |
 | Config in `config.yml` + `config_<language>.yml` | `config.yml`, `messages.yml`, `gui.yml` |

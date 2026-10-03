@@ -82,6 +82,7 @@ class ShadedJarIT {
                     .filter(name -> name.startsWith("org/slf4j/")
                             || name.startsWith("com/zaxxer/hikari/")
                             || name.startsWith("jakarta/mail/")
+                            || name.startsWith("org/bouncycastle/")
                             || name.startsWith("org/eclipse/angus/"))
                     .forEach(unnamespaced::add);
 
@@ -89,6 +90,9 @@ class ShadedJarIT {
                     "HikariCP should be present under its relocated name");
             assertNotNull(jar.getEntry("dev/lightlogin/libs/jakarta/mail/Session.class"),
                     "jakarta.mail should be present under its relocated name");
+            assertNotNull(jar.getEntry(
+                            "dev/lightlogin/libs/org/bouncycastle/crypto/generators/Argon2BytesGenerator.class"),
+                    "BouncyCastle should be present under its relocated name");
         }
         assertTrue(unnamespaced.isEmpty(),
                 "these libraries should have been relocated into dev/lightlogin/libs/: " + unnamespaced);

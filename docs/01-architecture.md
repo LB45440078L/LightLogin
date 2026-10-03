@@ -6,7 +6,7 @@
 lightlogin-parent
 ├── lightlogin-core          domain + crypto + captcha + rate limiting + ports + web panel
 ├── lightlogin-persistence   JDBC adapters (SQLite / MariaDB / PostgreSQL), portable schema
-└── lightlogin-paper         the Paper plugin: commands, listeners, GUI, void world, wiring
+└── lightlogin-paper         the Bukkit plugin: commands, listeners, GUI, void world, wiring
 ```
 
 `lightlogin-core` has **no dependency on any Minecraft server API**. That is the single most
@@ -57,7 +57,7 @@ The core declares the storage it needs as interfaces (`dev.lightlogin.core.port`
 
 These are synchronous and blocking by contract, and are only ever called from the async executor.
 
-## The Paper adapter
+## The Bukkit adapter
 
 `dev.lightlogin.paper` is organised by concern:
 

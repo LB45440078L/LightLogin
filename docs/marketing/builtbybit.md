@@ -4,13 +4,13 @@
 
 ![Version](https://img.shields.io/badge/version-3.0.0-5b8cff?style=for-the-badge)
 ![Java](https://img.shields.io/badge/Java-25-ED8B00?style=for-the-badge&logo=openjdk&logoColor=white)
-![Paper](https://img.shields.io/badge/Paper-26.1%2B-1f6feb?style=for-the-badge)
+![Platform](https://img.shields.io/badge/Spigot%20%7C%20Paper-26.2-1f6feb?style=for-the-badge)
 ![Tests](https://img.shields.io/badge/tests-149%20passing-3ddc97?style=for-the-badge)
 ![Jar](https://img.shields.io/badge/jar-1.7%20MB-ffcf5b?style=for-the-badge)
 ![Hashing](https://img.shields.io/badge/passwords-Argon2id-8957e5?style=for-the-badge)
 ![Licence](https://img.shields.io/badge/licence-GPLv3-2f81f7?style=for-the-badge&logo=gnu&logoColor=white)
 
-LightLogin handles registration and login for Paper servers on Minecraft 26.1 and newer. It is a complete rewrite of the original LightLogin, rebuilt from the ground up rather than patched.
+LightLogin handles registration and login for Spigot and Paper servers on Minecraft 26.2 and newer. It is a complete rewrite of the original LightLogin, rebuilt from the ground up rather than patched.
 
 This is the full feature list, because you came here to find out what it does.
 
@@ -81,7 +81,7 @@ It carries only what it always needs. Database drivers and the optional GeoIP re
 
 ## Requirements
 
-* Paper 26.1 or newer
+* Spigot or Paper 26.2 or newer
 * Java 25 or newer
 * Optional: MySQL, MariaDB or PostgreSQL. SQLite is included and is the default
 * Optional: an SMTP account if you want email based password recovery

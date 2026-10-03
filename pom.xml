@@ -10,7 +10,7 @@
     <packaging>pom</packaging>
 
     <name>LightLogin</name>
-    <description>Modern, secure and high-performance authentication software for Paper servers.</description>
+    <description>Modern, secure and high-performance authentication software for Spigot and Paper servers.</description>
     <url>https://github.com/LB45440078L/LightLogin</url>
     <inceptionYear>2024</inceptionYear>
 
@@ -29,13 +29,13 @@
     </modules>
 
     <properties>
-        <!-- Build JDK 27, language/bytecode level 25 as required by Paper 26.x -->
+        <!-- Build JDK 27, language/bytecode level 25 as required by the Minecraft 26.x line -->
         <maven.compiler.release>25</maven.compiler.release>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
 
         <!-- Runtime / platform -->
-        <paper.version>26.1.2.build.74-stable</paper.version>
+        <spigot.version>26.2-R0.1-SNAPSHOT</spigot.version>
 
         <!-- Third-party libraries -->
         <bouncycastle.version>1.86</bouncycastle.version>
@@ -76,11 +76,13 @@
                 <version>${project.version}</version>
             </dependency>
 
-            <!-- Platform API -->
+            <!-- Platform API. Spigot rather than Paper: this plugin uses only the common Bukkit
+                 surface, so it builds and runs on Spigot, Paper and any fork that keeps the Bukkit
+                 contract. Nothing here may reach for Paper or Adventure types. -->
             <dependency>
-                <groupId>io.papermc.paper</groupId>
-                <artifactId>paper-api</artifactId>
-                <version>${paper.version}</version>
+                <groupId>org.spigotmc</groupId>
+                <artifactId>spigot-api</artifactId>
+                <version>${spigot.version}</version>
                 <scope>provided</scope>
             </dependency>
 
@@ -170,8 +172,8 @@
 
     <repositories>
         <repository>
-            <id>papermc</id>
-            <url>https://repo.papermc.io/repository/maven-public/</url>
+            <id>spigot-repo</id>
+            <url>https://hub.spigotmc.org/nexus/content/repositories/snapshots/</url>
         </repository>
     </repositories>
 

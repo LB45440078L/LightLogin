@@ -97,7 +97,7 @@ public final class AdminCommands extends CommandSupport {
                 ? config.web().bindAddress() + ':' + config.web().port()
                 : "disabled";
         send(sender, "admin.info", java.util.Map.of(
-                "VERSION", ctx.plugin().getPluginMeta().getVersion(),
+                "VERSION", ctx.plugin().getDescription().getVersion(),
                 "SCHEMA", String.valueOf(config.configVersion()),
                 "DATABASE", config.database().type().name(),
                 "ARGON2", config.security().argon().memoryKib() + " KiB, t="
@@ -304,9 +304,8 @@ public final class AdminCommands extends CommandSupport {
             }
             Account value = account.get();
             // Passwords and hashes are never displayed.
-            sender.sendMessage(net.kyori.adventure.text.serializer.legacy.LegacyComponentSerializer
-                    .legacyAmpersand().deserialize(ctx.messages().prefix() + "&eLogin data for &f"
-                            + value.username()));
+            sender.sendMessage(dev.lightlogin.paper.messages.MessageService.colour(
+                    ctx.messages().prefix() + "&eLogin data for &f" + value.username()));
             send(sender, "login-data-line", of("LABEL", "UUID", "VALUE", value.uuid()));
             send(sender, "login-data-line", of("LABEL", "Registered", "VALUE", value.isRegistered() ? "yes" : "no"));
             send(sender, "login-data-line", of("LABEL", "Email", "VALUE",

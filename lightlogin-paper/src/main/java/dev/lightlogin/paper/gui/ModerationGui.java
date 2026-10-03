@@ -4,8 +4,7 @@ import dev.lightlogin.core.crypto.ConstantTime;
 import dev.lightlogin.core.model.Account;
 import dev.lightlogin.core.model.IpBan;
 import dev.lightlogin.paper.bootstrap.PluginContext;
-import net.kyori.adventure.text.Component;
-import net.kyori.adventure.text.serializer.legacy.LegacyComponentSerializer;
+import dev.lightlogin.paper.messages.MessageService;
 import org.bukkit.Bukkit;
 import org.bukkit.Material;
 import org.bukkit.OfflinePlayer;
@@ -44,7 +43,6 @@ import java.util.Map;
  */
 public final class ModerationGui implements Listener {
 
-    private static final LegacyComponentSerializer SERIALIZER = LegacyComponentSerializer.legacyAmpersand();
     private static final DateTimeFormatter TIMESTAMP =
             DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm").withZone(ZoneId.systemDefault());
 
@@ -143,7 +141,7 @@ public final class ModerationGui implements Listener {
     public void openPlayerList(Player viewer, int page) {
         int size = rows * 9;
         PlayerListHolder holder = new PlayerListHolder(page);
-        Inventory inventory = Bukkit.createInventory(holder, size, SERIALIZER.deserialize(title));
+        Inventory inventory = Bukkit.createInventory(holder, size, MessageService.colour(title));
         holder.attach(inventory);
 
         async(() -> ctx.accounts().page(page * pageSize, pageSize), accounts -> {
@@ -172,7 +170,7 @@ public final class ModerationGui implements Listener {
     private void openActions(Player viewer, Account account, int page) {
         ActionsHolder holder = new ActionsHolder(account, page);
         Inventory inventory = Bukkit.createInventory(holder, 27,
-                SERIALIZER.deserialize("&8Actions &7» &f" + account.username()));
+                MessageService.colour("&8Actions &7» &f" + account.username()));
         holder.attach(inventory);
         inventory.setItem(10, item("action-reset-password"));
         inventory.setItem(12, item("action-ban-ip"));
@@ -185,7 +183,7 @@ public final class ModerationGui implements Listener {
     private void openConfirm(Player viewer, Action action, Account account, int page) {
         ConfirmHolder holder = new ConfirmHolder(action, account, page);
         Inventory inventory = Bukkit.createInventory(holder, 27,
-                SERIALIZER.deserialize("&8Confirm &7» &f" + account.username()));
+                MessageService.colour("&8Confirm &7» &f" + account.username()));
         holder.attach(inventory);
         inventory.setItem(11, item("confirm"));
         inventory.setItem(15, item("cancel"));
@@ -358,12 +356,17 @@ public final class ModerationGui implements Listener {
         ItemStack stack = new ItemStack(material);
         ItemMeta meta = stack.getItemMeta();
         if (meta != null) {
-            meta.displayName(render(itemString("player-entry.name", "&e{PLAYER}"), account));
-            meta.lore(renderLines("player-entry.lore", account));
+            meta.setDisplayName(render(itemString("player-entry.name", "&e{PLAYER}"), account));
+            meta.setLore(renderLines("player-entry.lore", account));
             if (meta instanceof SkullMeta skull) {
-                OfflinePlayer offline = Bukkit.getOfflinePlayerIfCached(account.username());
-                if (offline != null) {
-                    skull.setOwningPlayer(offline);
+                // Resolved by the stored UUID rather than by name: Bukkit's name lookup is
+                // deprecated and can block on a profile fetch, and this account already knows its
+                // own identifier.
+                try {
+                    skull.setOwningPlayer(Bukkit.getOfflinePlayer(java.util.UUID.fromString(account.uuid())));
+                } catch (IllegalArgumentException e) {
+                    ctx.plugin().getLogger().warning("Account " + account.uuid()
+                            + " does not hold a valid UUID; the head will show the default skin.");
                 }
             }
             stack.setItemMeta(meta);
@@ -393,10 +396,10 @@ public final class ModerationGui implements Listener {
         ItemStack stack = new ItemStack(material);
         ItemMeta meta = stack.getItemMeta();
         if (meta != null) {
-            meta.displayName(render(layout.getString("items." + key + ".name", key), null));
+            meta.setDisplayName(render(layout.getString("items." + key + ".name", key), null));
             List<String> lore = layout.getStringList("items." + key + ".lore");
             if (!lore.isEmpty()) {
-                meta.lore(lore.stream().map(line -> (Component) SERIALIZER.deserialize(line)).toList());
+                meta.setLore(lore.stream().map(MessageService::colour).toList());
             }
             stack.setItemMeta(meta);
         }
@@ -416,7 +419,7 @@ public final class ModerationGui implements Listener {
         return layout.getString(path, fallback);
     }
 
-    private Component render(String template, Account account) {
+    private String render(String template, Account account) {
         String text = template;
         if (account != null) {
             text = text.replace("{PLAYER}", account.username())
@@ -426,12 +429,12 @@ public final class ModerationGui implements Listener {
                             : TIMESTAMP.format(Instant.ofEpochMilli(account.lastLoginMillis())))
                     .replace("{REGISTERED}", account.isRegistered() ? "yes" : "no");
         }
-        return SERIALIZER.deserialize(text);
+        return MessageService.colour(text);
     }
 
-    private List<Component> renderLines(String path, Account account) {
+    private List<String> renderLines(String path, Account account) {
         List<String> lines = layout.getStringList(path);
-        List<Component> out = new ArrayList<>(lines.size());
+        List<String> out = new ArrayList<>(lines.size());
         for (String line : lines) {
             out.add(render(line, account));
         }

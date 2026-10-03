@@ -1,8 +1,6 @@
 package dev.lightlogin.paper.gui;
 
 import dev.lightlogin.paper.bootstrap.PluginContext;
-import net.kyori.adventure.text.Component;
-import net.kyori.adventure.text.serializer.plain.PlainTextComponentSerializer;
 import org.bukkit.Bukkit;
 import org.bukkit.Material;
 import org.bukkit.entity.Player;
@@ -18,6 +16,7 @@ import org.bukkit.inventory.InventoryHolder;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.ItemMeta;
 
+import java.util.List;
 import java.util.Map;
 import java.util.UUID;
 import java.util.concurrent.ConcurrentHashMap;
@@ -47,6 +46,9 @@ import java.util.function.BiConsumer;
  *       the confirmation step. Only the close of the inventory that is still registered as open for
  *       that player is honoured.</li>
  * </ul>
+ *
+ * <p>The inventory title and item text are plain strings with {@code &} colour codes, which is the
+ * Bukkit surface that exists on both Spigot and Paper.</p>
  */
 public final class PasswordInput implements Listener {
 
@@ -96,12 +98,13 @@ public final class PasswordInput implements Listener {
      * Opens the input for a player.
      *
      * @param player    the player
-     * @param prompt    shown as the window title
+     * @param prompt    shown as the window title; may contain {@code &} colour codes
      * @param onConfirm receives the typed value on the main thread; the player is still online
      */
-    public void open(Player player, Component prompt, BiConsumer<Player, String> onConfirm) {
+    public void open(Player player, String prompt, BiConsumer<Player, String> onConfirm) {
         Holder holder = new Holder(player.getUniqueId(), onConfirm);
-        Inventory inventory = Bukkit.createInventory(holder, InventoryType.ANVIL, title(prompt));
+        Inventory inventory = Bukkit.createInventory(holder, InventoryType.ANVIL,
+                dev.lightlogin.paper.messages.MessageService.colour(title(prompt)));
         holder.attach(inventory);
 
         // The anvil's rename field is seeded from the first input item's display name, so that item
@@ -109,8 +112,10 @@ public final class PasswordInput implements Listener {
         // player's own password would be appended to it instead of replacing it.
         ItemStack paper = new ItemStack(Material.PAPER);
         ItemMeta meta = paper.getItemMeta();
-        meta.lore(java.util.List.of(Component.text("Type it, then click the result slot to confirm.")));
-        paper.setItemMeta(meta);
+        if (meta != null) {
+            meta.setLore(List.of("Type it, then click the result slot to confirm."));
+            paper.setItemMeta(meta);
+        }
         inventory.setItem(0, paper);
 
         open.put(player.getUniqueId(), holder);
@@ -118,12 +123,12 @@ public final class PasswordInput implements Listener {
     }
 
     /** Truncates an over-long label so the client does not clip it mid-word. */
-    private static Component title(Component prompt) {
-        String text = PlainTextComponentSerializer.plainText().serialize(prompt);
+    private static String title(String prompt) {
+        String text = prompt == null ? "" : prompt;
         if (text.length() <= MAX_TITLE_LENGTH) {
-            return prompt;
+            return text;
         }
-        return Component.text(text.substring(0, MAX_TITLE_LENGTH - 1) + "…");
+        return text.substring(0, MAX_TITLE_LENGTH - 3) + "...";
     }
 
     @EventHandler(priority = EventPriority.LOW, ignoreCancelled = false)
@@ -183,8 +188,8 @@ public final class PasswordInput implements Listener {
         if (meta == null || !meta.hasDisplayName()) {
             return "";
         }
-        Component name = meta.displayName();
-        return name == null ? "" : PlainTextComponentSerializer.plainText().serialize(name).trim();
+        String name = meta.getDisplayName();
+        return name == null ? "" : name.trim();
     }
 
     /** Whether a player currently has an input open. */

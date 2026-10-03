@@ -12,8 +12,7 @@ import dev.lightlogin.paper.auth.AuthGate;
 import dev.lightlogin.paper.auth.LoginEffects;
 import dev.lightlogin.paper.bootstrap.PluginContext;
 import dev.lightlogin.paper.gui.PasswordInput;
-import net.kyori.adventure.text.Component;
-import net.kyori.adventure.text.serializer.legacy.LegacyComponentSerializer;
+import org.bukkit.ChatColor;
 import org.bukkit.Sound;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
@@ -25,8 +24,6 @@ import java.util.concurrent.ConcurrentHashMap;
 
 /** {@code /login}, {@code /register} and {@code /verify}. */
 public final class AuthCommands extends CommandSupport {
-
-    private static final LegacyComponentSerializer SERIALIZER = LegacyComponentSerializer.legacyAmpersand();
 
     private final PasswordInput passwordInput;
     private final Map<UUID, Long> lastAttemptMillis = new ConcurrentHashMap<>();
@@ -53,7 +50,7 @@ public final class AuthCommands extends CommandSupport {
             return;
         }
         if (args.length == 0) {
-            passwordInput.open(player, Component.text("Type your password, then click the result slot"),
+            passwordInput.open(player, "&7Type your password, then click the result slot",
                     (target, value) -> attemptLogin(target, value.toCharArray()));
             return;
         }
@@ -122,7 +119,7 @@ public final class AuthCommands extends CommandSupport {
                 fire(new PlayerAuthFailedEvent(player, ipOf(player),
                         PlayerAuthFailedEvent.Reason.RATE_LIMITED, -1));
             }
-            case AuthResult.IpBanned banned -> player.kick(SERIALIZER.deserialize(
+            case AuthResult.IpBanned banned -> player.kickPlayer(ChatColor.translateAlternateColorCodes('&',
                     "&cYou are banned from this server. &7" + banned.reason()));
             case AuthResult.Error error -> {
                 ctx.plugin().getLogger().warning("Login failed for " + player.getName() + ": " + error.message());
@@ -158,8 +155,8 @@ public final class AuthCommands extends CommandSupport {
         }
         if (args.length == 0) {
             // Two-step private input: enter, then confirm.
-            passwordInput.open(player, Component.text("Choose a password"), (target, first) ->
-                    passwordInput.open(target, Component.text("Type it again to confirm"), (confirmed, second) -> {
+            passwordInput.open(player, "&7Choose a password", (target, first) ->
+                    passwordInput.open(target, "&7Type it again to confirm", (confirmed, second) -> {
                         if (!first.equals(second)) {
                             send(confirmed, "register.mismatch");
                             return;
@@ -214,7 +211,7 @@ public final class AuthCommands extends CommandSupport {
                 }
             }
             case AuthResult.RegistrationLimitReached ignored -> send(player, "register.limit-reached");
-            case AuthResult.IpBanned banned -> player.kick(SERIALIZER.deserialize(
+            case AuthResult.IpBanned banned -> player.kickPlayer(ChatColor.translateAlternateColorCodes('&',
                     "&cYou are banned from this server. &7" + banned.reason()));
             case AuthResult.Error error -> {
                 ctx.plugin().getLogger().warning("Registration failed for " + player.getName() + ": " + error.message());
@@ -252,7 +249,7 @@ public final class AuthCommands extends CommandSupport {
                     String name = player.getName();
                     // The ban and its audit row are database writes: keep them off the server thread.
                     asyncRun(() -> ctx.authService().banForBruteForce(ip, name));
-                    player.kick(SERIALIZER.deserialize("&cYou failed the CAPTCHA too many times."));
+                    player.kickPlayer(ChatColor.RED + "You failed the CAPTCHA too many times.");
                 }
             }
             case CaptchaResult.Expired ignored -> issueCaptcha(player);

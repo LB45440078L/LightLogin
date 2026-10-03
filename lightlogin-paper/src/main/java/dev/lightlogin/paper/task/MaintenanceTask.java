@@ -3,11 +3,14 @@ package dev.lightlogin.paper.task;
 import dev.lightlogin.core.config.LoginConfig;
 import dev.lightlogin.paper.auth.AuthGate;
 import dev.lightlogin.paper.bootstrap.PluginContext;
-import net.kyori.adventure.text.serializer.legacy.LegacyComponentSerializer;
+import dev.lightlogin.paper.messages.MessageService;
 import org.bukkit.Bukkit;
 import org.bukkit.Sound;
 import org.bukkit.entity.Player;
 import org.bukkit.scheduler.BukkitTask;
+
+import java.util.List;
+import java.util.Map;
 
 /**
  * The single periodic task behind reminders, the login countdown and periodic clean-up.
@@ -15,6 +18,14 @@ import org.bukkit.scheduler.BukkitTask;
  * <p>One task at a fixed interval replaces several: fewer scheduler entries means less main-thread
  * work, and all the per-player work happens in a single pass over the (small) pending set rather
  * than in a task per player.</p>
+ *
+ * <p>The countdown is drawn with {@link Player#sendTitle(String, String, int, int, int)} rather than
+ * an action bar. Bukkit's own API has no action bar call: the Spigot way is
+ * {@code Player.Spigot#sendMessage(ChatMessageType, BaseComponent...)}, which needs Bungee's chat
+ * library on the classpath, and Paper's component overload does not exist on Spigot at all. Using
+ * the title and subtitle pair keeps this on the plain Bukkit surface, so the same jar runs on either
+ * server and needs no extra dependency. Titles and the countdown remain separately switchable: with
+ * only the countdown enabled the title is blank, which renders as a subtitle on its own.</p>
  */
 public final class MaintenanceTask {
 
@@ -54,18 +65,12 @@ public final class MaintenanceTask {
             }
             long remaining = login.timeoutMillis() - (now - pending.joinedAt());
             if (remaining <= 0) {
-                player.kick(LegacyComponentSerializer.legacyAmpersand()
-                        .deserialize(ctx.messages().raw("login.timed-out")));
+                player.kickPlayer(MessageService.colour(ctx.messages().raw("login.timed-out")));
                 ctx.authGate().forget(pending.uuid());
                 continue;
             }
             int secondsLeft = (int) (remaining / 1000);
-            if (login.titlesEnabled()) {
-                sendTitle(player, pending);
-            }
-            if (login.actionBarEnabled()) {
-                sendActionBar(player, secondsLeft);
-            }
+            sendPrompt(player, pending, secondsLeft);
             if (tickCounter % Math.max(1, login.reminderSeconds()) == 0) {
                 ctx.messages().send(player, pending.registered() ? "login.prompt" : "register.prompt");
                 player.playSound(player.getLocation(), Sound.BLOCK_LEVER_CLICK, 0.4f, 1.6f);
@@ -84,27 +89,32 @@ public final class MaintenanceTask {
         }
     }
 
-    private void sendTitle(Player player, AuthGate.Pending pending) {
-        String key = pending.registered() ? "login.prompt" : "register.prompt";
-        java.util.List<net.kyori.adventure.text.Component> lines = ctx.messages().render(key, java.util.Map.of());
-        if (lines.isEmpty()) {
+    /**
+     * Shows the login prompt and the remaining time.
+     *
+     * <p>Refreshed every second; the stay time is slightly longer than the interval so the display
+     * does not blink between ticks.</p>
+     */
+    private void sendPrompt(Player player, AuthGate.Pending pending, int secondsLeft) {
+        LoginConfig login = ctx.config().login();
+        if (!login.titlesEnabled() && !login.actionBarEnabled()) {
             return;
         }
-        player.showTitle(net.kyori.adventure.title.Title.title(
-                lines.get(0), net.kyori.adventure.text.Component.empty(),
-                net.kyori.adventure.title.Title.Times.times(
-                        java.time.Duration.ofMillis(250),
-                        java.time.Duration.ofSeconds(2),
-                        java.time.Duration.ofMillis(250))));
-    }
-
-    private void sendActionBar(Player player, int secondsLeft) {
-        String text = ctx.messages().raw("login.action-bar");
-        if (text.isBlank()) {
-            text = "&7Time left: &c{TIME}s";
+        String title = "";
+        if (login.titlesEnabled()) {
+            List<String> lines = ctx.messages().render(
+                    pending.registered() ? "login.prompt" : "register.prompt", Map.of());
+            title = lines.isEmpty() ? "" : lines.get(0);
         }
-        player.sendActionBar(LegacyComponentSerializer.legacyAmpersand()
-                .deserialize(text.replace("{TIME}", String.valueOf(secondsLeft))));
+        String countdown = "";
+        if (login.actionBarEnabled()) {
+            String template = ctx.messages().raw("login.action-bar");
+            if (template.isBlank()) {
+                template = "&7Time left: &c{TIME}s";
+            }
+            countdown = MessageService.colour(template.replace("{TIME}", String.valueOf(secondsLeft)));
+        }
+        player.sendTitle(title, countdown, 0, 30, 0);
     }
 
     private void housekeeping(long now) {

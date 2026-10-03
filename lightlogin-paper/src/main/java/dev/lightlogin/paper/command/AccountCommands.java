@@ -6,7 +6,6 @@ import dev.lightlogin.core.model.AuthResult;
 import dev.lightlogin.core.service.RecoveryService;
 import dev.lightlogin.paper.bootstrap.PluginContext;
 import dev.lightlogin.paper.gui.PasswordInput;
-import net.kyori.adventure.text.Component;
 import org.bukkit.Bukkit;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
@@ -36,8 +35,8 @@ public final class AccountCommands extends CommandSupport {
             return;
         }
         if (args.length < 2) {
-            passwordInput.open(player, Component.text("Type your current password"), (target, oldPassword) ->
-                    passwordInput.open(target, Component.text("Type your new password"), (confirmed, newPassword) ->
+            passwordInput.open(player, "&7Type your current password", (target, oldPassword) ->
+                    passwordInput.open(target, "&7Type your new password", (confirmed, newPassword) ->
                             attemptChange(confirmed, oldPassword.toCharArray(), newPassword.toCharArray())));
             return;
         }

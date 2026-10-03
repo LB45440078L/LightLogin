@@ -1,8 +1,7 @@
 package dev.lightlogin.paper.messages;
 
-import net.kyori.adventure.text.Component;
-import net.kyori.adventure.text.serializer.legacy.LegacyComponentSerializer;
-import net.kyori.adventure.audience.Audience;
+import org.bukkit.ChatColor;
+import org.bukkit.command.CommandSender;
 import org.bukkit.configuration.file.YamlConfiguration;
 import org.bukkit.plugin.java.JavaPlugin;
 
@@ -19,12 +18,11 @@ import java.util.Objects;
  * component that captured the service in its constructor still sees corrected text after a reload
  * — the failure mode where "the reload worked everywhere except the alerts" is designed out.</p>
  *
- * <p>Colour codes are translated with Adventure's ampersand serializer, so a literal ampersand is
- * preserved except where it is followed by a colour character.</p>
+ * <p>Messages render to plain strings with {@code &} colour codes translated, and are sent through
+ * {@link CommandSender}. That keeps the plugin on the Bukkit API alone: no Adventure types, so the
+ * same jar runs on Spigot, Paper and any fork that keeps the Bukkit contract.</p>
  */
 public final class MessageService {
-
-    private static final LegacyComponentSerializer SERIALIZER = LegacyComponentSerializer.legacyAmpersand();
 
     private final JavaPlugin plugin;
     private final File file;
@@ -69,15 +67,15 @@ public final class MessageService {
         return configuration.getKeys(true);
     }
 
-    /** Renders a message as a list of components, prefixing only the first line. */
-    public List<Component> render(String key, Map<String, String> placeholders) {
+    /** Renders a message as colour-translated lines, prefixing only the first line. */
+    public List<String> render(String key, Map<String, String> placeholders) {
         List<String> lines = configuration.isList(key)
                 ? configuration.getStringList(key)
                 : List.of(raw(key));
         if (lines.isEmpty()) {
             return List.of();
         }
-        List<Component> components = new ArrayList<>(lines.size());
+        List<String> rendered = new ArrayList<>(lines.size());
         boolean first = true;
         for (String line : lines) {
             if (line.isEmpty() && first) {
@@ -89,21 +87,31 @@ public final class MessageService {
                 text = applyPlaceholders(prefix, placeholders) + text;
                 first = false;
             }
-            components.add(SERIALIZER.deserialize(text));
+            rendered.add(colour(text));
         }
-        return components;
+        return rendered;
     }
 
-    /** Sends a message to an audience. */
-    public void send(Audience audience, String key, Map<String, String> placeholders) {
-        for (Component component : render(key, placeholders)) {
-            audience.sendMessage(component);
+    /** Sends a message to a sender. */
+    public void send(CommandSender sender, String key, Map<String, String> placeholders) {
+        for (String line : render(key, placeholders)) {
+            sender.sendMessage(line);
         }
     }
 
     /** Sends a message with no placeholders. */
-    public void send(Audience audience, String key) {
-        send(audience, key, Map.of());
+    public void send(CommandSender sender, String key) {
+        send(sender, key, Map.of());
+    }
+
+    /**
+     * Translates {@code &} colour codes to the section sign.
+     *
+     * <p>The single place colour codes are interpreted, so every caller can pass raw configured text
+     * and a literal ampersand survives.</p>
+     */
+    public static String colour(String input) {
+        return input == null ? "" : ChatColor.translateAlternateColorCodes('&', input);
     }
 
     private static String applyPlaceholders(String input, Map<String, String> placeholders) {

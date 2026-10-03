@@ -73,16 +73,20 @@ public final class VoidWorldService {
             }
             created.setSpawnLocation(0, (int) config.spawnY(), 0);
             created.setDifficulty(org.bukkit.Difficulty.PEACEFUL);
-            created.setGameRule(GameRule.DO_MOB_SPAWNING, false);
-            created.setGameRule(GameRule.DO_PATROL_SPAWNING, false);
-            created.setGameRule(GameRule.DO_TRADER_SPAWNING, false);
-            created.setGameRule(GameRule.DO_DAYLIGHT_CYCLE, false);
-            created.setGameRule(GameRule.DO_WEATHER_CYCLE, false);
-            created.setGameRule(GameRule.ANNOUNCE_ADVANCEMENTS, false);
+            // Spigot names these after the vanilla game rule ids. The old Bukkit aliases
+            // (DO_MOB_SPAWNING, DO_DAYLIGHT_CYCLE, ANNOUNCE_ADVANCEMENTS and friends) do not exist
+            // in this API, and doFireTick has been replaced by a fire spread radius.
+            created.setGameRule(GameRule.SPAWN_MOBS, false);
+            created.setGameRule(GameRule.SPAWN_PATROLS, false);
+            created.setGameRule(GameRule.SPAWN_WANDERING_TRADERS, false);
+            created.setGameRule(GameRule.ADVANCE_TIME, false);
+            created.setGameRule(GameRule.ADVANCE_WEATHER, false);
+            created.setGameRule(GameRule.SHOW_ADVANCEMENT_MESSAGES, false);
             created.setGameRule(GameRule.FALL_DAMAGE, false);
-            created.setGameRule(GameRule.DO_FIRE_TICK, false);
             created.setGameRule(GameRule.MOB_GRIEFING, false);
-            created.setGameRule(GameRule.DO_INSOMNIA, false);
+            created.setGameRule(GameRule.SPAWN_PHANTOMS, false);
+            // Fire cannot spread, so nothing in an empty world can start or carry one.
+            created.setGameRule(GameRule.FIRE_SPREAD_RADIUS_AROUND_PLAYER, 0);
             // Nothing in this world should ever change: it exists only as a place to stand.
             created.setGameRule(GameRule.RANDOM_TICK_SPEED, 0);
             // The spawn area is not force-loaded; the world is occupied only while someone logs in.

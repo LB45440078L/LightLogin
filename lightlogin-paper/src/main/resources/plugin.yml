@@ -1,9 +1,8 @@
 name: LightLogin
 version: '${project.version}'
 main: dev.lightlogin.paper.LightLoginPlugin
-api-version: '26.1'
+api-version: '26.2'
 load: POSTWORLD
-folia-supported: false
 author: CMarco
 description: Modern, secure and high-performance authentication software for Paper servers.
 website: https://github.com/LB45440078L/LightLogin
