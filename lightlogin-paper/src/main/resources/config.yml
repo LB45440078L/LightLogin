@@ -139,12 +139,12 @@ safety:
 #   dragon is refused, so nothing hostile exists there either.
 #
 #   The world is produced by an explicit empty chunk generator, which is the only way to get
-#   an empty world in the End: the End's own generator would put its island there. On startup
-#   the world is checked for terrain. The bottom few layers do not count, because the End's
-#   exit portal lands on the floor of an empty world and is invisible from the login position;
-#   one bedrock block down there is not a problem. If the check fails anyway, it says what and
-#   where it found blocks, and names the folder to delete: that means real terrain, which is
-#   written once at generation and cannot be removed by any generator change.
+#   an empty world in the End: the End's own generator would put its island there. A world in
+#   the End dimension also makes the server place the End's exit portal, a small bedrock
+#   cluster that lands on the world floor of an empty world; it is cleared automatically at
+#   startup, so the world is empty from your point of view. Login works either way, because
+#   the world is never withheld. Genuine terrain is never deleted on a guess: if far more than
+#   a stray artefact is found, it is left alone and the folder to delete is named instead.
 # -------------------------------------------------------------------------------------
 void-world:
   enabled: false

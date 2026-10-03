@@ -177,16 +177,19 @@ The ender dragon is refused explicitly, at its spawn event and by a periodic swe
 rule covers it. A world in the End dimension is the End as far as the server is concerned, so the
 dragon fight is otherwise a live possibility.
 
-**Terrain is written once, at creation.** A world folder left over from an earlier build keeps the
-terrain it was generated with, and no generator change can remove it.
+**Leftover blocks are cleared, not complained about.** A world in the End dimension also makes the
+server place the End's exit portal: a small bedrock cluster, which in a world with no terrain lands
+on the world floor. On startup anything unexpected in the login area is cleared to air, so the world
+is empty from your point of view and nothing needs doing. The scan runs on every startup, so a block
+the server recreates is removed again next time rather than accumulating.
 
-On startup the world is checked for terrain, and the bottom few layers are excluded from that check
-because the End's exit portal lands on the floor of an empty world: it is a hundred blocks below the
-login position, invisible, and not a sign of anything wrong. So one lone bedrock block down there is
-tolerated, and the check failing means real terrain. When it fails it names what it found, how many
-blocks, and the vertical range they span, which is what separates a stray artefact from an island.
-It also names the folder to delete and disables login teleporting until that is done, so players
-authenticate where they are rather than standing next to a generated island.
+The world is never withheld. Earlier versions refused to teleport players into it when they found
+that portal, which was wrong twice over: the world was perfectly usable, and the block is recreated
+whenever the world is, so deleting the world never converged either.
+
+Genuine terrain is a different matter, and is never deleted on a guess. If far more than a stray
+artefact is found, it is left alone, reported with the number of blocks and the vertical range they
+span, and the folder to delete is named. Login still works in that case too.
 
 A second world still has a real cost (its own chunk cache and a world-list entry). Leave it off
 unless unauthenticated entities in the main world are a problem for you.
